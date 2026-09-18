@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>KHATA PRO PREMIUM + RTO Portal</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800;14..32,900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        body { color: #1f2937; }
+        h1, h2, h3, h4, h5, h6 { color: #111827; }
+        p, span, div, label { color: inherit; }
+        
+        label, .label {
+            color: #374151 !important;
+            font-weight: 700;
+        }
+
+        input, select, textarea {
+            color: #111827 !important;
+            background-color: #ffffff !important;
+        }
+        input::placeholder, textarea::placeholder {
+            color: #9ca3af !important;
+        }
+
+        /* ===== MAIN APP STRUCTURE - FIXED ===== */
+        #mainApp {
+            display: none;
+            height: 100vh;
+            height: 100dvh;
+            width: 100%;
+            flex-direction: column;
+            overflow: hidden;
+            background: inherit;
+        }
+
+        #mainContent {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            padding: 8px 12px 90px 12px;
+            min-height: 0;
+        }
+
+        /* All views - simple scrollable content */
+        #homeWorkspaceView,
+        #clientsWorkspaceView,
+        #promisesWorkspaceView,
+        #ledgerWorkspaceView,
+        #incomeExpenseWorkspaceView,
+        #incomeBalanceView,
+        #expenseBalanceView,
+        #memoWorkspaceView,
+        #vehicleWorkspaceView,
+        #vehicleDetailWorkspaceView,
+        #loanWorkspaceView,
+        #loanPaymentWorkspaceView,
+        #personalWorkspaceView,
+        #contactsWorkspaceView,
+        #moreWorkspaceView,
+        #rtoWorkspaceView {
+            display: none;
+            width: 100%;
+            min-height: 100%;
+        }
+
+        #homeWorkspaceView.flex,
+        #clientsWorkspaceView.flex,
+        #promisesWorkspaceView.flex,
+        #ledgerWorkspaceView.flex,
+        #incomeExpenseWorkspaceView.flex,
+        #incomeBalanceView.flex,
+        #expenseBalanceView.flex,
+        #memoWorkspaceView.flex,
+        #vehicleWorkspaceView.flex,
+        #vehicleDetailWorkspaceView.flex,
+        #loanWorkspaceView.flex,
+        #loanPaymentWorkspaceView.flex,
+        #personalWorkspaceView.flex,
+        #contactsWorkspaceView.flex,
+        #moreWorkspaceView.flex,
+        #rtoWorkspaceView.flex {
+            display: block;
+        }
+
+        /* Dark mode */
+        body.dark-mode {
+            background: #0f0f1a !important;
+            color: #e5e7eb !important;
+        }
+        body.dark-mode .header-premium { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%) !important; }
+        body.dark-mode .premium-card { background: rgba(30, 27, 75, 0.9) !important; border-color: #4338ca !important; color: #e5e7eb !important; }
+        body.dark-mode .card-modern, body.dark-mode .loan-item, body.dark-mode .client-item, body.dark-mode .ie-list-item, body.dark-mode .summary-card, body.dark-mode .balance-card, body.dark-mode .cash-table-wrap, body.dark-mode .modal-premium, body.dark-mode .bottom-nav, body.dark-mode .loan-card, body.dark-mode .filter-btn { background: #1e1b4b !important; border-color: #4338ca !important; color: #e5e7eb !important; }
+        body.dark-mode .modal-premium { background: #1e1b4b !important; }
+        body.dark-mode .bottom-nav { background: #1a1a2e !important; }
+        body.dark-mode .nav-item { color: #9ca3af !important; }
+        body.dark-mode .nav-item.active { background: rgba(139, 92, 246, 0.25) !important; color: #a78bfa !important; }
+        body.dark-mode .input-premium { background: #1e1b4b !important; border-color: #4338ca !important; color: #e5e7eb !important; }
+        body.dark-mode .text-gray-800 { color: #e5e7eb !important; }
+        body.dark-mode .text-gray-500 { color: #a78bfa !important; }
+        body.dark-mode .text-gray-400 { color: #8b5cf6 !important; }
+        body.dark-mode .bg-white { background: #1e1b4b !important; }
+        body.dark-mode label { color: #d1d5db !important; }
+        body.dark-mode input, body.dark-mode select, body.dark-mode textarea {
+            color: #f3f4f6 !important;
+            background-color: #1f2937 !important;
+        }
+
+        .btn-premium { border: none !important; border-radius: 16px !important; padding: 12px 18px !important; font-weight: 900 !important; font-size: 14px !important; transition: all 0.2s !important; cursor: pointer !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 8px !important; color: #ffffff !important; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important; text-align: center !important; flex-wrap: wrap !important; }
+        .btn-premium:active { transform: scale(0.95) !important; }
+        .btn-premium.home-btn { background: #ffffff !important; border: 1px solid #e0e0e0 !important; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.08) !important; border-radius: 18px !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; padding: 14px 6px !important; min-height: 85px !important; text-align: center !important; color: #1f2937 !important; }
+        .btn-premium.home-btn i { font-size: 26px !important; margin-bottom: 6px !important; background: linear-gradient(135deg, #8b5cf6, #ec4899, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .btn-premium.home-btn span { font-size: 11px !important; font-weight: 800 !important; color: #475569 !important; }
+        .btn-premium.blue { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important; }
+        .btn-premium.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; }
+        .btn-premium.red { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important; }
+        .btn-premium.amber { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important; }
+        .btn-premium.purple { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important; }
+        .btn-premium.indigo { background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important; }
+        .btn-premium.teal { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%) !important; }
+        .btn-premium.pink { background: linear-gradient(135deg, #ec4899 0%, #be185d 100%) !important; }
+
+        .header-premium { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #ec4899 100%); color: white; padding: 14px 18px; border-radius: 0 0 28px 28px; box-shadow: 0 8px 32px rgba(124, 58, 237, 0.4); flex-shrink: 0; position: relative; z-index: 40; }
+        .premium-card { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 18px; padding: 14px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); color: #1f2937; }
+        .loan-card { background: linear-gradient(135deg, #10b981 0%, #047857 100%); border-radius: 18px; padding: 14px; color: white; }
+        .loan-item { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 18px; padding: 14px; margin-bottom: 10px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04); cursor: pointer; border-left: 5px solid #8b5cf6; color: #1f2937; }
+        .input-premium { background: rgba(255, 255, 255, 0.98); border: 2px solid rgba(139, 92, 246, 0.2); border-radius: 14px; padding: 12px 14px; font-weight: 700; width: 100%; color: #1f2937 !important; outline: none; font-size: 14px; }
+        .input-premium:focus { border-color: #8b5cf6; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15); }
+
+        .summary-card { border-radius: 14px; padding: 10px 6px !important; text-align: center; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04); min-height: 75px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .summary-card .label { font-size: 9px !important; font-weight: 800; text-transform: uppercase; color: #6b7280 !important; margin-bottom: 4px; }
+        .summary-card .value { font-size: 16px !important; font-weight: 900; color: #111827 !important; }
+        .summary-card.income { border-top: 4px solid #10b981; }
+        .summary-card.income .value { color: #059669 !important; }
+        .summary-card.expense { border-top: 4px solid #ef4444; }
+        .summary-card.expense .value { color: #dc2626 !important; }
+        .summary-card.balance { border-top: 4px solid #8b5cf6; }
+        .summary-card.balance .value { color: #7c3aed !important; }
+
+        .client-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 16px; margin-bottom: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04); cursor: pointer; color: #1f2937; }
+        .client-avatar { width: 46px; height: 46px; background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; color: #ffffff; flex-shrink: 0; }
+
+        .ie-list-item { background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.6); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; color: #1f2937; }
+
+        .filter-btn { padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 11px; border: 2px solid rgba(139, 92, 246, 0.2); background: rgba(255, 255, 255, 0.7); cursor: pointer; color: #4b5563 !important; }
+        .filter-btn.active { border-color: #8b5cf6; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); color: white !important; }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(135deg, #8b5cf6, #ec4899); border-radius: 10px; }
+
+        .modal-premium { background: rgba(255, 255, 255, 0.98); border-radius: 28px; padding: 24px; max-width: 420px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 32px 80px rgba(0, 0, 0, 0.3); color: #1f2937; }
+
+        .bottom-nav { display: flex; justify-content: space-around; align-items: center; background: rgba(255, 255, 255, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.4); padding: 8px 4px 12px 4px; box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.08); border-radius: 22px 22px 0 0; flex-shrink: 0; position: relative; z-index: 50; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; font-size: 10px; font-weight: 800; color: #6b7280 !important; cursor: pointer; padding: 6px 8px; border-radius: 14px; min-width: 48px; }
+        .nav-item i { font-size: 20px; margin-bottom: 4px; }
+        .nav-item.active { color: #8b5cf6 !important; background: rgba(139, 92, 246, 0.15); }
+        .nav-item.active i { color: #8b5cf6 !important; }
+
+        .balance-card { border-radius: 14px; padding: 14px 18px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(255, 255, 255, 0.6); color: #1f2937; }
+        .balance-card .b-label { font-size: 13px; font-weight: 800; color: #4b5563 !important; }
+        .balance-card .b-amount { font-size: 18px; font-weight: 900; }
+        .balance-card.income { border-left: 5px solid #10b981; }
+        .balance-card.income .b-amount { color: #10b981 !important; }
+        .balance-card.expense { border-left: 5px solid #ef4444; }
+        .balance-card.expense .b-amount { color: #ef4444 !important; }
+        .balance-card.total { border-left: 5px solid #8b5cf6; }
+        .balance-card.total .b-amount { color: #8b5cf6 !important; }
+
+        .available-green { color: #10b981 !important; background: #d1fae5 !important; padding: 3px 10px !important; border-radius: 20px !important; font-weight: 800 !important; font-size: 10px !important; display: inline-block !important; }
+        .available-yellow { color: #b45309 !important; background: #fef3c7 !important; padding: 3px 10px !important; border-radius: 20px !important; font-weight: 800 !important; font-size: 10px !important; display: inline-block !important; }
+        .available-red { color: #b91c1c !important; background: #fee2e2 !important; padding: 3px 10px !important; border-radius: 20px !important; font-weight: 800 !important; font-size: 10px !important; display: inline-block !important; }
+
+        /* ===== HOME PAGE ===== */
+        #homeWorkspaceView {
+            background: linear-gradient(160deg, #f0fdf4 0%, #e0f2fe 25%, #fdf2f8 50%, #fef3c7 75%, #f0fdf4 100%) !important;
+            border-radius: 20px;
+            padding: 12px;
+            margin: -8px -12px;
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-top: 12px;
+            min-height: calc(100vh - 130px);
+        }
+        #homeWorkspaceView .home-balance-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%) !important;
+            border-radius: 24px !important;
+            padding: 20px !important;
+            color: white !important;
+            box-shadow: 0 20px 50px rgba(76, 29, 149, 0.4) !important;
+            margin-bottom: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        #homeWorkspaceView .home-balance-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        #homeWorkspaceView .home-balance-card .label { color: rgba(255,255,255,0.8) !important; font-size: 11px !important; letter-spacing: 1.5px; }
+        #homeWorkspaceView .home-balance-card .amount { color: #ffffff !important; font-size: 2.2rem !important; font-weight: 900 !important; }
+        #homeWorkspaceView .home-balance-card .sub-amount { color: #fbbf24 !important; font-size: 1.1rem !important; font-weight: 800 !important; }
+        #homeWorkspaceView .home-balance-card .mini-stat { background: rgba(255,255,255,0.12) !important; border-radius: 14px !important; padding: 10px 14px !important; border: 1px solid rgba(255,255,255,0.15); }
+        #homeWorkspaceView .home-balance-card .mini-stat .mini-label { color: rgba(255,255,255,0.75) !important; font-size: 9px !important; }
+        #homeWorkspaceView .home-balance-card .mini-stat .mini-value { font-size: 15px !important; font-weight: 800 !important; }
+        #homeWorkspaceView .home-balance-card .mini-stat .mini-value.income-val { color: #34d399 !important; }
+        #homeWorkspaceView .home-balance-card .mini-stat .mini-value.expense-val { color: #f87171 !important; }
+        #homeWorkspaceView .dashTotalBalanceHome { color: #ffffff !important; }
+        #homeWorkspaceView .dashIncomeHome { color: #34d399 !important; }
+        #homeWorkspaceView .dashExpenseHome { color: #f87171 !important; }
+        #homeWorkspaceView .dashGetAmountHome { color: #fbbf24 !important; }
+
+        #quickActionGrid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        /* ===== LOCK SCREEN ===== */
+        .lock-premium {
+            background: linear-gradient(145deg, #667eea 0%, #764ba2 40%, #f093fb 70%, #f5576c 100%) !important;
+            position: relative;
+            overflow: hidden;
+        }
+        .lock-premium::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 70%, rgba(255, 200, 100, 0.2) 0%, transparent 50%);
+            animation: lockGlow 10s ease-in-out infinite alternate;
+        }
+        @keyframes lockGlow {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+            100% { transform: translate(3%, 3%) scale(1.15) rotate(5deg); }
+        }
+        .lock-premium .lock-dot { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgba(255, 255, 255, 0.4); transition: all 0.4s; }
+        .lock-premium .lock-dot.active { background: linear-gradient(135deg, #fbbf24, #f59e0b); border-color: transparent; box-shadow: 0 0 20px rgba(251, 191, 36, 0.8); transform: scale(1.2); }
+        .lock-premium .lock-key-btn { border-radius: 22px !important; background: rgba(255, 255, 255, 0.15) !important; border: 2px solid rgba(255, 255, 255, 0.25) !important; color: #ffffff !important; font-weight: 700 !important; font-size: 1.8rem !important; width: 72px !important; height: 72px !important; }
+        .lock-premium .lock-key-btn:active { transform: scale(0.92); background: rgba(251, 191, 36, 0.3) !important; }
+        .lock-premium .lock-key-btn.clear-btn { background: rgba(239, 68, 68, 0.25) !important; color: #fca5a5 !important; }
+        .lock-premium .lock-key-btn.reset-btn { background: rgba(245, 158, 11, 0.25) !important; color: #fcd34d !important; }
+        .lock-premium h2 { color: #ffffff !important; font-size: 2.2rem !important; text-shadow: 0 0 30px rgba(251, 191, 36, 0.7); font-weight: 900; }
+        .lock-premium .subtitle { color: rgba(255, 255, 255, 0.95) !important; font-weight: 600; }
+        .lock-premium .dots-container { background: rgba(255, 255, 255, 0.12) !important; border: 2px solid rgba(255, 255, 255, 0.25) !important; border-radius: 999px !important; padding: 14px 30px !important; gap: 22px !important; }
+        .lock-premium .lock-icon-wrap { background: linear-gradient(135deg, #fbbf24, #f59e0b, #ec4899, #8b5cf6) !important; box-shadow: 0 0 50px rgba(251, 191, 36, 0.6) !important; }
+
+        .section-header { background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(236, 72, 153, 0.08)); border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; border-left: 4px solid #8b5cf6; }
+
+        .more-menu-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(245, 243, 255, 0.9)); border: 1px solid rgba(139, 92, 246, 0.1); border-radius: 16px; cursor: pointer; margin-bottom: 10px; color: #1f2937; }
+        .more-menu-item .icon-wrap { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; flex-shrink: 0; }
+        .more-menu-item .icon-wrap.green { background: linear-gradient(135deg, #10b981, #059669); }
+        .more-menu-item .icon-wrap.blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .more-menu-item .icon-wrap.purple { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        .more-menu-item .icon-wrap.amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .more-menu-item .icon-wrap.red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .more-menu-item .menu-text { font-weight: 800; font-size: 14px; color: #1f2937 !important; }
+        .more-menu-item .menu-sub { font-size: 11px; color: #9ca3af !important; }
+
+        .vehicle-summary-card { background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(240, 249, 255, 0.95)); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 16px; padding: 14px; color: #1f2937; margin-bottom: 10px; }
+        .contact-card { background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(253, 242, 248, 0.95)) !important; }
+
+        .reminder-card { border-radius: 16px; padding: 16px; margin-bottom: 10px; color: white !important; box-shadow: 0 6px 20px rgba(0,0,0,0.15); cursor: pointer; }
+        .reminder-card h3, .reminder-card p, .reminder-card span { color: white !important; }
+
+        .empty-state { text-align: center; padding: 50px 20px; color: #9ca3af !important; }
+        .empty-state i { font-size: 44px; margin-bottom: 12px; opacity: 0.4; }
+        .empty-state p { font-weight: 700; font-size: 15px; }
+
+        .cash-table-wrap { background: rgba(255, 255, 255, 0.95); border-radius: 14px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.6); }
+        .cash-table-wrap table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .cash-table-wrap th { background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.1)); color: #6d28d9 !important; font-weight: 800; padding: 10px 8px; text-align: left; font-size: 10px; }
+        .cash-table-wrap td { padding: 10px 8px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); color: #1f2937 !important; font-weight: 600; font-size: 11px; word-break: break-word; }
+        .cash-table-wrap .gave-row td { border-left: 3px solid #ef4444; }
+        .cash-table-wrap .received-row td { border-left: 3px solid #10b981; }
+        .cash-type-badge { padding: 3px 8px; border-radius: 20px; font-weight: 800; font-size: 9px; display: inline-block; }
+        .cash-type-gave { background: #fee2e2; color: #b91c1c; }
+        .cash-type-received { background: #d1fae5; color: #065f46; }
+
+        .print-btn-custom { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important; color: white !important; border-radius: 12px !important; padding: 10px 14px !important; font-weight: 800 !important; font-size: 12px !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; border: none !important; cursor: pointer !important; }
+
+        .header-icon-btn { width: 38px; height: 38px; border-radius: 12px !important; background: rgba(255, 255, 255, 0.2) !important; display: flex !important; align-items: center !important; justify-content: center !important; color: white !important; border: none !important; }
+
+        .client-action-btn { border-radius: 10px !important; padding: 8px 8px !important; font-weight: 800 !important; font-size: 10px !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 4px !important; color: #ffffff !important; border: none !important; flex: 1 !important; min-height: 34px !important; }
+
+        .blink-red { animation: blinkRed 1s infinite; }
+        .blink-yellow { animation: blinkYellow 1s infinite; }
+        .blink-green { animation: blinkGreen 1s infinite; }
+        .blink-warning { animation: blinkWarning 1s infinite; }
+        @keyframes blinkRed { 0%, 100% { background-color: #ef4444; } 50% { background-color: #b91c1c; } }
+        @keyframes blinkYellow { 0%, 100% { background-color: #f59e0b; } 50% { background-color: #b45309; } }
+        @keyframes blinkGreen { 0%, 100% { background-color: #10b981; } 50% { background-color: #047857; } }
+        @keyframes blinkWarning { 0%, 100% { background-color: #fef3c7; } 50% { background-color: #fde68a; } }
+
+        .color-option { width: 42px; height: 42px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; }
+        .color-option.active { border-color: #ffffff; box-shadow: 0 0 0 3px #8b5cf6; transform: scale(1.1); }
+
+        body.theme-green { background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%) !important; }
+        body.theme-blue { background: linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%) !important; }
+        body.theme-purple { background: linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%) !important; }
+        body.theme-rose { background: linear-gradient(145deg, #fff1f2 0%, #fecdd3 100%) !important; }
+        body.theme-amber { background: linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%) !important; }
+        body.theme-cyan { background: linear-gradient(145deg, #ecfeff 0%, #cffafe 100%) !important; }
+        body.theme-gray { background: linear-gradient(145deg, #f9fafb 0%, #e5e7eb 100%) !important; }
+        body.theme-pink { background: linear-gradient(145deg, #fdf2f8 0%, #fbcfe8 100%) !important; }
+
+        body.dark-mode.theme-green, body.dark-mode.theme-blue, body.dark-mode.theme-purple,
+        body.dark-mode.theme-rose, body.dark-mode.theme-amber, body.dark-mode.theme-cyan,
+        body.dark-mode.theme-gray, body.dark-mode.theme-pink { background: #0f0f1a !important; }
+
+        /* RTO */
+        .rto-container { background: #0a0c16; color: #ffffff; border-radius: 20px; padding: 20px; min-height: 100%; }
+        .rto-container .login-screen { min-height: 60vh; display: flex; align-items: center; justify-content: center; }
+        .rto-container .login-card { background: #111424; padding: 30px; border-radius: 20px; border: 2px solid #00f0ff; text-align: center; width: 100%; max-width: 400px; }
+        .rto-container .login-card h2 { color: #00f0ff; margin-bottom: 20px; }
+        .rto-container .main-app { display: none; max-width: 1400px; margin: auto; }
+        .rto-container .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #252d53; padding-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .rto-container .header h1 { color: #00f0ff; font-size: 22px; }
+        .rto-container button { padding: 10px 16px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .rto-container .btn-primary { background: linear-gradient(45deg, #00f0ff, #00b9de); color: #000; }
+        .rto-container .btn-success { background: linear-gradient(45deg, #00f5d4, #00bbf9); color: #000; }
+        .rto-container .btn-danger { background: #ff3838; color: #fff; }
+        .rto-container .btn-secondary { background: #252b41; color: #fff; }
+        .rto-container .btn-warning { background: #ffb703; color: #000; }
+        .rto-container .form-container { background: #111424; padding: 20px; border-radius: 18px; border: 1px solid #252d53; margin-bottom: 20px; }
+        .rto-container .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .rto-container .input-box { display: flex; flex-direction: column; gap: 5px; }
+        .rto-container .input-box label { font-size: 11px; color: #8fa0dd; font-weight: 600; }
+        .rto-container input[type="text"], .rto-container input[type="date"], .rto-container input[type="password"] { background: #1a1f36; border: 1px solid #252d53; padding: 10px; border-radius: 8px; color: #fff; width: 100%; }
+        .rto-container .file-wrapper { background: #1a1f36; border: 1px dashed #3d497c; padding: 6px; border-radius: 8px; }
+        .rto-container .table-section { background: #111424; border-radius: 18px; border: 1px solid #252d53; overflow-x: auto; }
+        .rto-container table { width: 100%; border-collapse: collapse; }
+        .rto-container th { background: #161b30; color: #00f0ff; padding: 12px; font-size: 12px; }
+        .rto-container td { padding: 10px; border-bottom: 1px solid #252d53; font-size: 12px; }
+        .rto-container .expired { background: #ff3838; color: #fff; padding: 3px 6px; border-radius: 6px; display: inline-block; }
+        .rto-container .upcoming { background: rgba(255, 183, 3, 0.2); color: #ffd166; padding: 3px 6px; border-radius: 6px; display: inline-block; }
+        .rto-container .normal { background: rgba(0, 245, 212, 0.1); color: #00f5d4; padding: 3px 6px; border-radius: 6px; display: inline-block; }
+        .rto-container .doc-links a { background: #1f2647; padding: 3px 6px; border-radius: 5px; text-decoration: none; color: white; font-size: 10px; margin: 2px; display: inline-block; }
+        .rto-container .alert-panel { background: rgba(255, 56, 56, 0.15); border: 1px solid #ff3838; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: none; }
+        .rto-container .controls-section { display: flex; flex-wrap: wrap; gap: 10px; justify-content: space-between; margin-bottom: 15px; background: #131930; padding: 12px; border-radius: 12px; }
+        .rto-container .search-input { background: #1a1f36; border: 1px solid #252d53; padding: 10px; border-radius: 8px; color: #fff; width: 100%; max-width: 300px; }
+        .rto-container .storage-info { background: #1a1f36; padding: 5px 12px; border-radius: 20px; font-size: 12px; color: #00f5d4; }
+    </style>
+</head>
+<body class="theme-green">
+
+    <!-- ===== LOCK SCREEN ===== -->
+    <div id="lockScreen" class="fixed inset-0 lock-premium z-[9999] flex flex-col items-center justify-center py-10 px-6" style="display:flex;">
+        <div class="w-full max-w-sm relative z-10">
+            <div class="text-center mb-6">
+                <div class="w-24 h-24 lock-icon-wrap rounded-full mx-auto mb-5 flex items-center justify-center">
+                    <i class="fa-solid fa-shield-halved text-5xl text-white"></i>
+                </div>
+                <h2 class="text-3xl font-black text-white">KHATA PRO</h2>
+                <p id="lockScreenSubtitle" class="text-base subtitle mt-2">🔐 Enter Secure PIN</p>
+            </div>
+            <div class="flex justify-center gap-5 my-6 px-8 py-4 rounded-full dots-container">
+                <div id="dot-0" class="lock-dot"></div>
+                <div id="dot-1" class="lock-dot"></div>
+                <div id="dot-2" class="lock-dot"></div>
+                <div id="dot-3" class="lock-dot"></div>
+            </div>
+            <div class="grid grid-cols-3 gap-4 justify-items-center">
+                <button class="lock-key-btn" onclick="pressKey('1')">1</button>
+                <button class="lock-key-btn" onclick="pressKey('2')">2</button>
+                <button class="lock-key-btn" onclick="pressKey('3')">3</button>
+                <button class="lock-key-btn" onclick="pressKey('4')">4</button>
+                <button class="lock-key-btn" onclick="pressKey('5')">5</button>
+                <button class="lock-key-btn" onclick="pressKey('6')">6</button>
+                <button class="lock-key-btn" onclick="pressKey('7')">7</button>
+                <button class="lock-key-btn" onclick="pressKey('8')">8</button>
+                <button class="lock-key-btn" onclick="pressKey('9')">9</button>
+                <button class="lock-key-btn clear-btn" onclick="clearCurrentPin()">⌫</button>
+                <button class="lock-key-btn" onclick="pressKey('0')">0</button>
+                <button class="lock-key-btn reset-btn" onclick="fullResetApp()">⚠️</button>
+            </div>
+            <div class="text-center mt-6 text-sm text-white/60 font-bold">KHATA PREMIUM v9.8</div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN APP ===== -->
+    <div id="mainApp">
+
+        <header id="mainHeader" class="header-premium">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <button id="backBtn" onclick="goHome()" class="hidden text-xl text-white"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h1 id="pageTitle" class="text-lg font-black uppercase text-white">KHATA PRO</h1>
+                </div>
+                <div class="flex gap-1">
+                    <button onclick="openThemeSwitcher()" class="header-icon-btn"><i class="fa-solid fa-palette"></i></button>
+                    <button onclick="toggleTheme()" class="header-icon-btn"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+                    <button onclick="lockApp()" class="header-icon-btn"><i class="fa-solid fa-lock"></i></button>
+                    <button onclick="openSettings()" class="header-icon-btn"><i class="fa-solid fa-gear"></i></button>
+                </div>
+            </div>
+            <div id="payViewBackRow" class="mt-2 hidden">
+                <button onclick="goBackFromPaymentView()" class="pay-back-btn" style="background: rgba(255,255,255,0.2); color: white; border-radius: 12px; padding: 6px 14px; font-weight: 800; font-size: 12px; border: 1px solid rgba(255,255,255,0.3);"><i class="fa-solid fa-arrow-left"></i> Back to Loans</button>
+            </div>
+        </header>
+
+        <!-- ===== MAIN CONTENT (SCROLLABLE) ===== -->
+        <div id="mainContent">
+
+            <!-- ==================== HOME VIEW ==================== -->
+            <div id="homeWorkspaceView" class="flex">
+                <div class="home-balance-card">
+                    <div class="flex justify-between items-start relative z-10">
+                        <div>
+                            <p class="label font-bold uppercase tracking-wider">Total Balance</p>
+                            <h2 class="amount font-black" id="dashTotalBalanceHome">₹0</h2>
+                            <p class="sub-amount font-black mt-1" id="dashGetAmountHome">You'll Get ₹0</p>
+                        </div>
+                        <div class="flex gap-2 mt-1">
+                            <div class="mini-stat text-center">
+                                <p class="mini-label font-bold uppercase">Income</p>
+                                <p class="mini-value income-val" id="dashIncomeHome">₹0</p>
+                            </div>
+                            <div class="mini-stat text-center">
+                                <p class="mini-label font-bold uppercase">Expense</p>
+                                <p class="mini-value expense-val" id="dashExpenseHome">₹0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="homeRemindersPreview" class="mb-3 hidden">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-sm font-black text-amber-600">⏰ Due Soon (3 Days)</h3>
+                        <button onclick="switchView('memo')" class="text-xs font-bold text-amber-600 underline">View All</button>
+                    </div>
+                    <div id="homeRemindersList" class="space-y-1"></div>
+                    <div class="flex gap-3 mt-2 justify-center">
+                        <div id="indicatorDay1" class="w-5 h-5 rounded-full bg-gray-300"></div>
+                        <div id="indicatorDay2" class="w-5 h-5 rounded-full bg-gray-300"></div>
+                        <div id="indicatorDay3" class="w-5 h-5 rounded-full bg-gray-300"></div>
+                    </div>
+                </div>
+                <div id="homePromisesPreview" class="mb-3 hidden">
+                    <div class="flex justify-between items-center mb-1">
+                        <h3 class="text-sm font-black text-rose-600">📅 Promises Due Soon</h3>
+                        <button onclick="switchView('promises')" class="text-xs font-bold text-rose-600 underline">View All</button>
+                    </div>
+                    <div id="homePromisesList" class="space-y-1"></div>
+                </div>
+                
+                <div id="quickActionGrid">
+                    <button onclick="switchView('clients')" class="btn-premium home-btn"><i class="fa-solid fa-users"></i> <span>Clients</span></button>
+                    <button onclick="switchView('loan')" class="btn-premium home-btn"><i class="fa-solid fa-hand-holding-dollar"></i> <span>Loans</span></button>
+                    <button onclick="switchView('cash')" class="btn-premium home-btn"><i class="fa-solid fa-money-bill-wave"></i> <span>Cashbook</span></button>
+                    <button onclick="switchView('memo')" class="btn-premium home-btn"><i class="fa-regular fa-sticky-note"></i> <span>Memo</span></button>
+                    <button onclick="switchView('income')" class="btn-premium home-btn"><i class="fa-solid fa-circle-dollar-to-slot"></i> <span>Income/Exp</span></button>
+                    <button onclick="switchView('vehicle')" class="btn-premium home-btn"><i class="fa-solid fa-car"></i> <span>Vehicle</span></button>
+                    <button onclick="switchView('contacts')" class="btn-premium home-btn"><i class="fa-solid fa-address-book"></i> <span>Contacts</span></button>
+                    <button onclick="switchView('more')" class="btn-premium home-btn"><i class="fa-solid fa-ellipsis"></i> <span>More</span></button>
+                    <button onclick="switchView('rto')" class="btn-premium home-btn"><i class="fa-solid fa-car-side"></i> <span>RTO Portal</span></button>
+                </div>
+            </div>
+
+            <!-- ==================== CLIENTS VIEW ==================== -->
+            <div id="clientsWorkspaceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-purple-800">👥 All Clients</h2>
+                    <button onclick="openCustModal()" class="btn-premium purple text-xs py-2 px-3"><i class="fa-solid fa-user-plus"></i> Add</button>
+                </div>
+                <div class="mb-3">
+                    <input type="text" id="searchInput" oninput="searchQuery=this.value;renderClientListFeed()" placeholder="Search..." class="input-premium w-full text-sm font-bold" />
+                </div>
+                <div id="mainClientListContainer"></div>
+            </div>
+
+            <!-- ==================== LEDGER VIEW ==================== -->
+            <div id="ledgerWorkspaceView">
+                <div id="topArea" class="mb-2"></div>
+                <div class="flex flex-wrap gap-1.5 mb-2">
+                    <button onclick="openAdd('GAVE')" class="client-action-btn" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"><i class="fa-solid fa-hand-holding-dollar"></i> GAVE</button>
+                    <button onclick="openAdd('GOT')" class="client-action-btn" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="fa-solid fa-receipt"></i> GOT</button>
+                    <button onclick="openPromiseModal()" class="client-action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><i class="fa-solid fa-clock"></i> PROMISE</button>
+                    <button onclick="openActionsHubModal()" class="client-action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);"><i class="fa-solid fa-bolt"></i> MORE</button>
+                    <button onclick="openCustModal(activeCid)" class="client-action-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);"><i class="fa-solid fa-pen"></i> EDIT</button>
+                    <button onclick="openPrintModal()" class="print-btn-custom">PRINT</button>
+                </div>
+                <div class="flex items-center gap-2 mb-2 flex-wrap">
+                    <div class="flex gap-1">
+                        <button id="typeFilterAll" onclick="setLedgerTypeFilter('ALL')" class="px-3 py-1.5 rounded-lg bg-white text-purple-600 text-xs font-black">All</button>
+                        <button id="typeFilterGave" onclick="setLedgerTypeFilter('GAVE')" class="px-3 py-1.5 rounded-lg text-purple-600 text-xs font-black">Gave</button>
+                        <button id="typeFilterGot" onclick="setLedgerTypeFilter('GOT')" class="px-3 py-1.5 rounded-lg text-purple-600 text-xs font-black">Got</button>
+                    </div>
+                    <div class="flex-1 min-w-[80px]">
+                        <input type="text" id="ledgerSearchInput" oninput="renderDetails()" placeholder="Filter..." class="w-full rounded-lg py-1.5 px-2 text-xs font-bold border border-purple-200 bg-white" />
+                    </div>
+                    <button onclick="toggleDateFilterDrawer()" class="w-8 h-8 rounded-lg bg-purple-500/30 flex items-center justify-center text-sm"><i class="fa-solid fa-calendar-alt"></i></button>
+                </div>
+                <div id="dateFilterDrawer" class="hidden mb-2 p-2 premium-card">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <input type="date" id="filterStartDate" onchange="renderDetails()" class="p-1.5 rounded-lg text-xs font-bold border border-purple-200 bg-white flex-1" />
+                        <span class="font-black text-purple-600 text-xs">➡</span>
+                        <input type="date" id="filterEndDate" onchange="renderDetails()" class="p-1.5 rounded-lg text-xs font-bold border border-purple-200 bg-white flex-1" />
+                        <button onclick="clearDateRangeFilters()" class="text-xs font-extrabold bg-red-500/20 px-3 py-1 rounded-lg text-red-600">✖ CLEAR</button>
+                    </div>
+                </div>
+                <div id="dailyRow" class="grid grid-cols-2 gap-2 mb-2"></div>
+                <div class="premium-card" style="padding: 0; overflow: hidden;">
+                    <table class="w-full border-collapse">
+                        <thead class="bg-purple-50">
+                            <tr class="text-purple-700 text-xs font-black">
+                                <th class="p-2 text-left">Date</th>
+                                <th class="p-2 text-left">Gave</th>
+                                <th class="p-2 text-left">Got</th>
+                                <th class="p-2 text-left">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ledgerItemsRowsContainer"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ==================== PROMISES VIEW ==================== -->
+            <div id="promisesWorkspaceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-amber-700"><i class="fa-solid fa-clock text-amber-500"></i> All Promises</h2>
+                    <button onclick="switchView('home')" class="btn-premium amber text-xs py-2 px-3"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <div id="promisesListContainer" class="space-y-2"></div>
+            </div>
+
+            <!-- ==================== INCOME/EXPENSE VIEW ==================== -->
+            <div id="incomeExpenseWorkspaceView">
+                <div class="flex gap-2 mb-3">
+                    <button id="incomeTabBtn" onclick="switchIETab('income')" class="flex-1 py-3 rounded-xl font-black text-sm bg-gradient-to-r from-emerald-500 to-green-600 text-white">INCOME</button>
+                    <button id="expenseTabBtn" onclick="switchIETab('expense')" class="flex-1 py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-700">EXPENSE</button>
+                </div>
+                <div class="grid grid-cols-3 gap-2 mb-3">
+                    <div class="summary-card income">
+                        <p class="label">INCOME</p>
+                        <p class="value" id="ieSummaryIncome">₹0</p>
+                    </div>
+                    <div class="summary-card expense">
+                        <p class="label">EXPENSE</p>
+                        <p class="value" id="ieSummaryExpense">₹0</p>
+                    </div>
+                    <div class="summary-card balance">
+                        <p class="label">BALANCE</p>
+                        <p class="value" id="ieSummaryBalance">₹0</p>
+                    </div>
+                </div>
+                <div class="mb-3 flex flex-wrap gap-2 items-center">
+                    <input type="text" id="ieSearchInput" oninput="renderIncomeExpenseList()" placeholder="Search..." class="input-premium text-sm py-2 flex-1" style="min-width:120px;" />
+                    <div class="flex gap-1 flex-wrap">
+                        <button class="filter-btn active" onclick="setIEFilter('ALL')" id="ieFilterAll">All</button>
+                        <button class="filter-btn" onclick="setIEFilter('TODAY')" id="ieFilterToday">Today</button>
+                        <button class="filter-btn" onclick="setIEFilter('WEEK')" id="ieFilterWeek">Week</button>
+                        <button class="filter-btn" onclick="setIEFilter('MONTH')" id="ieFilterMonth">Month</button>
+                    </div>
+                </div>
+                <div class="mb-3 flex gap-2">
+                    <input type="date" id="ieFilterStartDate" onchange="renderIncomeExpenseList()" class="p-2 rounded-lg text-xs font-bold border border-purple-200 bg-white flex-1" />
+                    <input type="date" id="ieFilterEndDate" onchange="renderIncomeExpenseList()" class="p-2 rounded-lg text-xs font-bold border border-purple-200 bg-white flex-1" />
+                    <button onclick="clearIEDateRange()" class="btn-premium text-xs py-2 px-3">✖</button>
+                </div>
+                <div class="mb-3 flex gap-2">
+                    <button id="addIeBtn" onclick="openAddIncomeModal()" class="flex-1 py-3 btn-premium green text-sm">+ ADD INCOME</button>
+                    <button onclick="openIncomeBalanceView()" class="py-3 px-4 btn-premium purple text-sm"><i class="fa-solid fa-eye"></i></button>
+                    <button onclick="printFullIncomeExpense()" class="print-btn-custom"><i class="fa-solid fa-print"></i></button>
+                </div>
+                <div id="ieListContainer" class="space-y-2"></div>
+            </div>
+
+            <!-- ==================== INCOME BALANCE VIEW ==================== -->
+            <div id="incomeBalanceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-emerald-700"><i class="fa-solid fa-wallet text-emerald-500"></i> Income Balance</h2>
+                    <div class="flex gap-2">
+                        <button onclick="printIncomeBalance()" class="print-btn-custom"><i class="fa-solid fa-print"></i></button>
+                        <button onclick="goBackFromBalanceView()" class="btn-premium green text-xs py-2 px-3"><i class="fa-solid fa-arrow-left"></i></button>
+                    </div>
+                </div>
+                <div id="incomeBalanceList" class="space-y-2"></div>
+            </div>
+
+            <!-- ==================== EXPENSE BALANCE VIEW ==================== -->
+            <div id="expenseBalanceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-rose-700"><i class="fa-solid fa-wallet text-rose-500"></i> Expense Balance</h2>
+                    <div class="flex gap-2">
+                        <button onclick="printExpenseBalance()" class="print-btn-custom"><i class="fa-solid fa-print"></i></button>
+                        <button onclick="goBackFromBalanceView()" class="btn-premium red text-xs py-2 px-3"><i class="fa-solid fa-arrow-left"></i></button>
+                    </div>
+                </div>
+                <div id="expenseBalanceList" class="space-y-2"></div>
+            </div>
+
+            <!-- ==================== MEMO VIEW ==================== -->
+            <div id="memoWorkspaceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-purple-800"><i class="fa-regular fa-sticky-note text-purple-500"></i> My Reminders</h2>
+                    <div class="flex gap-2">
+                        <button onclick="toggleAlarm()" class="btn-premium amber text-xs py-2 px-3"><i id="alarmIcon" class="fa-solid fa-bell"></i> <span id="alarmStatus">ON</span></button>
+                        <button onclick="openAddReminderModal()" class="btn-premium purple text-xs py-2 px-3">+ Add</button>
+                        <button onclick="printReminders()" class="print-btn-custom"><i class="fa-solid fa-print"></i></button>
+                    </div>
+                </div>
+                <div id="remindersListContainer" class="space-y-2"></div>
+            </div>
+
+            <!-- ==================== VEHICLE VIEW ==================== -->
+            <div id="vehicleWorkspaceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-blue-800"><i class="fa-solid fa-car text-blue-500"></i> Vehicle</h2>
+                    <div class="flex gap-2">
+                        <button onclick="openAddVehicleExpenseModal()" class="btn-premium blue text-xs py-2 px-3">+ Add</button>
+                        <button onclick="printVehicleExpenses()" class="print-btn-custom"><i class="fa-solid fa-print"></i></button>
+                    </div>
+                </div>
+                <div class="premium-card mb-3 p-2">
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <div class="flex gap-1 flex-wrap">
+                            <button class="filter-btn active" onclick="setVehicleFilter('ALL')" id="vehFilterAll">All</button>
+                            <button class="filter-btn" onclick="setVehicleFilter('Car')" id="vehFilterCar">Car</button>
+                            <button class="filter-btn" onclick="setVehicleFilter('Bike')" id="vehFilterBike">Bike</button>
+                            <button class="filter-btn" onclick="setVehicleFilter('Auto')" id="vehFilterAuto">Auto</button>
+                            <button class="filter-btn" onclick="setVehicleFilter('Other')" id="vehFilterOther">Other</button>
+                        </div>
+                        <button onclick="renderVehicleExpenses()" class="btn-premium blue text-xs py-2 px-2"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
+                </div>
+                <div id="vehicleSummaryContainer" class="mb-3"></div>
+                <div id="vehicleExpensesList" class="space-y-2"></div>
+            </div>
+
+            <!-- ==================== VEHICLE DETAIL VIEW ==================== -->
+            <div id="vehicleDetailWorkspaceView">
+                <div class="mb-3">
+                    <button onclick="goBackToVehicleList()" class="btn-premium blue text-xs py-2 px-3"><i class="fa-solid fa-arrow-left"></i> Back</button>
+                </div>
+                <div id="vehicleDetailHeader" class="premium-card mb-3 p-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h2 id="vehicleDetailName" class="text-xl font-black text-gray-800">—</h2>
+                        </div>
+                        <button onclick="openAddVehicleExpenseModal(document.getElementById('vehicleDetailName').innerText)" class="btn-premium blue text-xs py-2 px-3">+ Add</button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+                        <div class="bg-red-50 rounded-lg p-2">
+                            <span class="block font-bold text-red-700 text-[10px]">Expense</span>
+                            <span id="vehicleDetailExpense" class="font-black text-base">₹0</span>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-2">
+                            <span class="block font-bold text-green-700 text-[10px]">Collection</span>
+                            <span id="vehicleDetailCollection" class="font-black text-base">₹0</span>
+                        </div>
+                        <div class="bg-blue-50 rounded-lg p-2">
+                            <span class="block font-bold text-blue-700 text-[10px]">Net</span>
+                            <span id="vehicleDetailNet" class="font-black text-base">₹0</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="vehicleDetailEntriesList" class="space-y-2"></div>
+            </div>
+
+            <!-- ==================== LOAN VIEW ==================== -->
+            <div id="loanWorkspaceView">
+                <div class="section-header flex justify-between items-center flex-wrap gap-2">
+                    <h2 class="text-lg font-black text-indigo-800"><i class="fa-solid fa-hand-holding-dollar text-indigo-500"></i> Loans</h2>
+                    <button onclick="openAddLoanModal()" class="btn-premium indigo text-xs py-2 px-3">+ Add</button>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-3">
+                    <div class="loan-card text-center p-3" style="background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);"><p class="text-[10px] font-bold text-white">TOTAL</p><h3 class="text-xl font-black text-white" id="totalLoans">0</h3></div>
+                    <div class="loan-card text-center p-3" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><p class="text-[10px] font-bold text-white">ACTIVE</p><h3 class="text-xl font-black text-white" id="activeLoans">0</h3></div>
+                    <div class="loan-card text-center p-3" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);"><p class="text-[10px] font-bold text-white">OVERDUE</p><h3 class="text-xl font-black text-white" id="overdueLoans">0</h3></div>
+                    <div class="loan-card text-center p-3" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);"><p class="text-[10px] font-bold text-white">DUE</p><h3 class="text-xl font-black text-white" id="totalDue">₹0</h3></div>
+                </div>
+                <div class="premium-card mb-3 p-3">
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <input type="text" id="loanSearch" oninput="renderLoans()" placeholder="Search..." class="input-premium text-sm py-2 flex-1" style="min-width:120px;" />
+                        <div class="flex gap-1 flex-wrap">
+                            <button class="filter-btn active" onclick="setLoanFilter('ALL')" id="filterAll">All</button>
+                            <button class="filter-btn" onclick="setLoanFilter('ACTIVE')" id="filterActive">Active</button>
+                            <button class="filter-btn" onclick="setLoanFilter('OVERDUE')" id="filterOverdue">Overdue</button>
+                            <button class="filter-btn" onclick="setLoanFilter('PAID')" id="filterPaid">Paid</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="loanListContainer" class="space-y-2"></div>
+                <div id="emptyState" class="empty-state hidden">
+                    <i class="fa-solid fa-hand-holding-dollar"></i>
+                    <p>No loans found</p>
+                </div>
+            </div>
+
+            <!-- ==================== LOAN PAYMENT VIEW ==================== -->
+            <div id="loanPaymentWorkspaceView">
+                <div class="premium-card mb-3 p-3">
+                    <div class="flex justify-between items-start mb-3 flex-wrap gap-2">
+                        <div>
+                            <div class="font-black text-base text-gray-800" id="payCustName">— <small id="payLoanPurpose">Loan</small></div>
+                        </div>
+                        <span id="payStatusBadge" style="padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 800;" class="status-active">ACTIVE</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-3">
+                        <div class="bg-purple-50 rounded-xl p-2 text-center"><div class="text-[10px] font-bold text-gray-500">Balance</div><div class="font-black text-sm text-purple-600" id="payBalance">₹0</div></div>
+                        <div class="bg-blue-50 rounded-xl p-2 text-center"><div class="text-[10px] font-bold text-gray-500">Principal</div><div class="font-black text-sm" id="payPrincipal">₹0</div></div>
+                        <div class="bg-green-50 rounded-xl p-2 text-center"><div class="text-[10px] font-bold text-gray-500">Interest Paid</div><div class="font-black text-sm text-green-600" id="payInterestPaid">₹0</div></div>
+                        <div class="bg-amber-50 rounded-xl p-2 text-center"><div class="text-[10px] font-bold text-gray-500">Total Paid</div><div class="font-black text-sm" id="payTotalPaid">₹0</div></div>
+                    </div>
+                    <div class="premium-card mb-3" style="padding:0; overflow-x:auto;">
+                        <table class="w-full border-collapse" style="font-size:11px;">
+                            <thead class="bg-purple-50">
+                                <tr class="text-purple-700 text-[10px] font-black">
+                                    <th class="p-2 text-left">Date</th>
+                                    <th class="p-2 text-right">Amount</th>
+                                    <th class="p-2 text-right">Principal</th>
+                                    <th class="p-2 text-right">Interest</th>
+                                    <th class="p-2 text-right">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="payTableBody">
+                                <tr><td colspan="5" class="text-center py-4 text-gray-400">No payments</td></tr>
+                            </tbody>
+                            <tfoot id="payTableFoot" class="hidden">
+                                <tr class="bg-purple-50 font-black">
+                                    <td class="p-2">TOTAL</td>
+                                    <td class="p-2 text-right" id="payTotalAmountCell">₹0</td>
+                                    <td class="p-2 text-right" id="payTotalPrincipalCell">₹0</td>
+                                    <td class="p-2 text-right" id="payTotalInterestCell">₹0</td>
+                                    <td class="p-2 text-right" id="payFinalBalanceCell">₹0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="payViewAction('pay')" class="btn-premium green text-xs py-2 px-2">Pay</button>
+                        <button onclick="payViewAction('extra')" class="btn-premium red text-xs py-2 px-2">Extra</button>
+                        <button onclick="payViewAction('print')" class="btn-premium amber text-xs py-2 px-2">Print</button>
+                        <button onclick="payViewAction('pdf')" class="btn-premium purple text-xs py-2 px-2">PDF</button>
+                        <button onclick="payViewAction('delete')" class="btn-premium red text-xs py-2 px-2">Delete</button>
+                        <button onclick="payViewAction('view')" class="btn-premium blue text-xs py-2 px-2">View</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== CASH BOOK VIEW ==================== -->
+            <div id="personalWorkspaceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-teal-800"><i class="fa-solid fa-money-bill-wave text-teal-500"></i> Cash Book</h2>
+                </div>
+                <div class="premium-card mb-2 p-2">
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="bg-red-50 rounded-xl p-2 border border-red-100">
+                            <p class="text-[9px] font-bold text-red-500 uppercase">Total Gave</p>
+                            <p id="cashTotalGave" class="text-sm font-black text-red-600">₹0</p>
+                        </div>
+                        <div class="bg-green-50 rounded-xl p-2 border border-green-100">
+                            <p class="text-[9px] font-bold text-green-500 uppercase">Total Received</p>
+                            <p id="cashTotalReceived" class="text-sm font-black text-green-600">₹0</p>
+                        </div>
+                        <div class="bg-purple-50 rounded-xl p-2 border border-purple-100">
+                            <p class="text-[9px] font-bold text-purple-500 uppercase">Net Balance</p>
+                            <p id="cashNetBalance" class="text-sm font-black text-purple-600">₹0</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="premium-card mb-2 p-2">
+                    <div class="flex flex-wrap gap-2 items-center mb-2">
+                        <div class="flex gap-1 flex-wrap">
+                            <button class="filter-btn active" onclick="setCashFilter('ALL')" id="cashFilterAll">All</button>
+                            <button class="filter-btn" onclick="setCashFilter('GAVE')" id="cashFilterGave">Gave</button>
+                            <button class="filter-btn" onclick="setCashFilter('RECEIVED')" id="cashFilterReceived">Received</button>
+                        </div>
+                        <input type="text" id="cashSearch" oninput="renderCashBook()" placeholder="Search..." class="input-premium text-xs py-2 flex-1" style="min-width:100px;" />
+                        <button onclick="clearCashFilters()" class="btn-premium text-xs py-2 px-2">✖</button>
+                    </div>
+                    <div class="flex gap-2 items-center">
+                        <input type="date" id="cashFilterStart" onchange="renderCashBook()" class="p-1.5 rounded-lg border border-purple-200 text-xs font-bold flex-1" />
+                        <span class="font-black text-gray-400 text-xs">➡</span>
+                        <input type="date" id="cashFilterEnd" onchange="renderCashBook()" class="p-1.5 rounded-lg border border-purple-200 text-xs font-bold flex-1" />
+                        <button onclick="clearCashDateRange()" class="btn-premium text-[10px] py-1 px-2">Clear</button>
+                    </div>
+                </div>
+                <div class="mb-2 flex gap-2">
+                    <button onclick="openAddCashModal()" class="flex-1 py-3 btn-premium teal text-sm">+ ADD TRANSACTION</button>
+                    <button onclick="printCashBook()" class="print-btn-custom"><i class="fa-solid fa-print"></i></button>
+                </div>
+                <div class="cash-table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cashTableBody">
+                            <tr><td colspan="4" class="text-center py-4 text-gray-400">No transactions yet</td></tr>
+                        </tbody>
+                        <tfoot id="cashTableFoot" class="hidden">
+                            <tr class="bg-purple-50 font-black">
+                                <td colspan="2" class="p-2">TOTAL</td>
+                                <td id="cashFootTotal" class="p-2 font-black">₹0</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ==================== CONTACTS VIEW ==================== -->
+            <div id="contactsWorkspaceView">
+                <div class="section-header flex justify-between items-center">
+                    <h2 class="text-lg font-black text-pink-800"><i class="fa-solid fa-address-book text-pink-500"></i> Contacts</h2>
+                    <button onclick="openAddContactModal()" class="btn-premium pink text-xs py-2 px-3">+ Add</button>
+                </div>
+                <div class="premium-card mb-2 p-2">
+                    <input type="text" id="contactSearch" oninput="renderContacts()" placeholder="Search contacts..." class="input-premium text-sm py-2 w-full" />
+                </div>
+                <div id="contactsListContainer" class="space-y-2"></div>
+                <div id="emptyContactsState" class="empty-state hidden">
+                    <i class="fa-solid fa-address-book"></i>
+                    <p>No contacts yet</p>
+                </div>
+            </div>
+
+            <!-- ==================== MORE VIEW ==================== -->
+            <div id="moreWorkspaceView">
+                <div class="section-header">
+                    <h2 class="text-lg font-black text-purple-800">More Options</h2>
+                </div>
+                <div class="more-menu-item" onclick="switchView('income')">
+                    <div class="icon-wrap green"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+                    <div><div class="menu-text">Income & Expense</div><div class="menu-sub">Track your money</div></div>
+                    <i class="fa-solid fa-chevron-right opacity-40 ml-auto"></i>
+                </div>
+                <div class="more-menu-item" onclick="switchView('vehicle')">
+                    <div class="icon-wrap blue"><i class="fa-solid fa-car"></i></div>
+                    <div><div class="menu-text">Vehicle</div><div class="menu-sub">Expense & Collection</div></div>
+                    <i class="fa-solid fa-chevron-right opacity-40 ml-auto"></i>
+                </div>
+                <div class="more-menu-item" onclick="switchView('contacts')">
+                    <div class="icon-wrap purple"><i class="fa-solid fa-address-book"></i></div>
+                    <div><div class="menu-text">Contacts</div><div class="menu-sub">Saved contacts</div></div>
+                    <i class="fa-solid fa-chevron-right opacity-40 ml-auto"></i>
+                </div>
+                <div class="more-menu-item" onclick="openSecurityModal()">
+                    <div class="icon-wrap amber"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div><div class="menu-text">SECURITY</div><div class="menu-sub">App Lock (PIN)</div></div>
+                    <i class="fa-solid fa-chevron-right opacity-40 ml-auto"></i>
+                </div>
+                <div class="more-menu-item" onclick="openSettings()">
+                    <div class="icon-wrap red"><i class="fa-solid fa-database"></i></div>
+                    <div><div class="menu-text">DATA</div><div class="menu-sub">Backup, Restore, Reset</div></div>
+                    <i class="fa-solid fa-chevron-right opacity-40 ml-auto"></i>
+                </div>
+                <div class="text-center text-xs text-gray-400 font-bold py-4">KHATA PRO PREMIUM - V1.0</div>
+            </div>
+
+            <!-- ==================== RTO VIEW ==================== -->
+            <div id="rtoWorkspaceView">
+                <div class="rto-container">
+                    <div id="rtoLoginSection" class="login-screen">
+                        <div class="login-card">
+                            <h2>🔐 Asma's Online Service</h2>
+                            <input type="password" id="rtoPassInput" placeholder="Password" onkeypress="if(event.key === 'Enter') rtoCheckLogin()" style="width:100%; padding:10px; border-radius:8px; background:#1a1f36; border:1px solid #252d53; color:#fff;">
+                            <button class="btn-primary" style="width:100%; margin-top:15px" onclick="rtoCheckLogin()">Unlock Portal</button>
+                            <p style="margin-top: 15px; font-size:12px;">Password: admin123</p>
+                        </div>
+                    </div>
+                    <div id="rtoAppSection" class="main-app">
+                        <div class="header">
+                            <div>
+                                <h1>⚡ Asma's RTO Premium Portal</h1>
+                                <p>Unlimited Storage | Expiry Tracker</p>
+                            </div>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                                <span class="storage-info" id="rtoStorageInfo">📦 Loading...</span>
+                                <button class="btn-success" onclick="rtoExportToJSON()">💾 Export</button>
+                                <button class="btn-warning" onclick="document.getElementById('rtoRestoreInput').click()">📂 Import</button>
+                                <input type="file" id="rtoRestoreInput" style="display:none" accept=".json" onchange="rtoImportFromJSON(event)">
+                                <button class="btn-secondary" onclick="rtoClearAllData()">🗑️ Clear</button>
+                                <button class="btn-secondary" onclick="switchView('more')">⬅ Back</button>
+                            </div>
+                        </div>
+                        <div id="rtoAlertPanel" class="alert-panel">
+                            <h4>⚠️ Expiry Alerts</h4>
+                            <ul id="rtoAlertList"></ul>
+                        </div>
+                        <div class="form-container">
+                            <h3 style="color:#00f0ff; margin-bottom: 15px;" id="rtoFormTitle">➕ Add New Customer</h3>
+                            <input type="hidden" id="rtoEditId">
+                            <div class="grid-inputs">
+                                <div class="input-box"><label>Name</label><input type="text" id="rtoCustName" placeholder="Full name"></div>
+                                <div class="input-box"><label>Phone</label><input type="text" id="rtoCustPhone" placeholder="Phone"></div>
+                                <div class="input-box"><label>Vehicle No</label><input type="text" id="rtoVehNo" placeholder="KL-01-AB-1234"></div>
+                                <div class="input-box"><label>RC Book</label><div class="file-wrapper"><input type="file" id="rtoRcFile" accept="image/*,application/pdf"></div></div>
+                                <div class="input-box"><label>Aadhaar</label><div class="file-wrapper"><input type="file" id="rtoAadharFile"></div></div>
+                                <div class="input-box"><label>Welfare Card</label><div class="file-wrapper"><input type="file" id="rtoWelfareFile"></div></div>
+                                <div class="input-box"><label>PAN Card</label><div class="file-wrapper"><input type="file" id="rtoPanFile"></div></div>
+                                <div class="input-box"><label>Insurance Expiry</label><input type="date" id="rtoInsDate"></div>
+                                <div class="input-box"><label>Tax Expiry</label><input type="date" id="rtoTaxDate"></div>
+                                <div class="input-box"><label>Permit Expiry</label><input type="date" id="rtoPerDate"></div>
+                                <div class="input-box"><label>Fitness Expiry</label><input type="date" id="rtoFitDate"></div>
+                                <div class="input-box"><label>PUC Expiry</label><input type="date" id="rtoPucDate"></div>
+                                <div class="input-box"><label>Renewal Date</label><input type="date" id="rtoRenDate"></div>
+                            </div>
+                            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                                <button class="btn-primary" id="rtoSaveBtn" onclick="rtoSaveData()">💾 Save</button>
+                                <button class="btn-secondary" id="rtoCancelBtn" style="display:none;" onclick="rtoResetForm()">Cancel Edit</button>
+                            </div>
+                        </div>
+                        <div class="controls-section">
+                            <input type="text" id="rtoSearchBar" class="search-input" placeholder="🔍 Search..." oninput="rtoHandleSearch()">
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-secondary" onclick="rtoFilterTable('all')">📋 All</button>
+                                <button class="btn-warning" onclick="rtoFilterTable('expiring_soon')">⏰ Soon</button>
+                                <button class="btn-danger" onclick="rtoFilterTable('expired')">🚨 Expired</button>
+                            </div>
+                        </div>
+                        <div class="table-section">
+                            <table>
+                                <thead>
+                                    <tr><th>Customer</th><th>Insurance</th><th>Tax</th><th>Permit</th><th>Fitness</th><th>PUC</th><th>Renewal</th><th>Actions</th></tr>
+                                </thead>
+                                <tbody id="rtoDataTable"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== BOTTOM NAV ===== -->
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchView('home')" id="navHome"><i class="fa-solid fa-house"></i><span>Home</span></div>
+            <div class="nav-item" onclick="switchView('loan')" id="navLoan"><i class="fa-solid fa-hand-holding-dollar"></i><span>Loans</span></div>
+            <div class="nav-item" onclick="switchView('cash')" id="navCash"><i class="fa-solid fa-money-bill-wave"></i><span>Cashbook</span></div>
+            <div class="nav-item" onclick="switchView('memo')" id="navMemo"><i class="fa-regular fa-sticky-note"></i><span>Memo</span></div>
+            <div class="nav-item" onclick="switchView('more')" id="navMore"><i class="fa-solid fa-ellipsis"></i><span>More</span></div>
+        </div>
+
+    </div>
+
+    <!-- ===== MODAL ===== -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black/60 hidden z-[1000] items-center justify-center p-4" onclick="closeModal()">
+        <div id="modalBox" class="modal-premium" onclick="event.stopPropagation()"></div>
+    </div>
+
+    <div id="printableArea" style="display: none;"></div>
+
+    <script>
+        const STORAGE_ID = 'KHATA_PRO_PREMIUM_V9';
+        let db = JSON.parse(localStorage.getItem(STORAGE_ID)) || {
+            customers: [], trans: [], promises: [], reminders: [], vehicleExpenses: [],
+            incomes: [], expenses: [], loans: [], loanPayments: [], cashBook: [], contacts: [],
+            incomeCategories: ['Salary', 'Business', 'Rent', 'Investment', 'Gift', 'Other'],
+            expenseCategories: ['Food', 'Travel', 'Bills', 'Shopping', 'Medical', 'Other'],
+            pin: '', upi: '', darkMode: false, theme: 'green', alarmEnabled: true
+        };
+        let activeCid = null, currentPinInput = "", searchQuery = "", currentLedgerTypeFilter = "ALL", tempFirstSetupPin = "";
+        let currentIETab = "income", currentLoanFilter = "ALL", currentQRAmount = 0;
+        let reminderCheckInterval = null, currentViewLoanId = null, currentCashFilter = "ALL";
+        let currentBalanceView = null, currentIEFilter = "ALL", currentVehicleFilter = "ALL";
+
+        const saveDB = () => { try { localStorage.setItem(STORAGE_ID, JSON.stringify(db)); renderAll(); } catch (e) { alert('Save failed: ' + e.message); } };
+        const getToday = () => new Date().toISOString().split('T')[0];
+        const fmtDate = (d) => d ? d.split('-').reverse().join('/') : '';
+        const rand = () => Date.now() + Math.floor(Math.random() * 1000);
+
+        function renderAll() {
+            const view = document.querySelector('#mainContent > div.flex, #mainContent > div:not(.hidden)');
+            if (document.getElementById('homeWorkspaceView').classList.contains('flex')) { renderDashboard(); renderHomePreviews(); }
+            if (document.getElementById('clientsWorkspaceView').classList.contains('flex')) renderClientListFeed();
+            if (document.getElementById('promisesWorkspaceView').classList.contains('flex')) renderPromisesPage();
+            if (document.getElementById('memoWorkspaceView').classList.contains('flex')) renderReminders();
+            if (document.getElementById('vehicleWorkspaceView').classList.contains('flex')) renderVehicleExpenses();
+            if (document.getElementById('vehicleDetailWorkspaceView').classList.contains('flex')) renderVehicleDetails();
+            if (document.getElementById('incomeExpenseWorkspaceView').classList.contains('flex')) renderIncomeExpenseList();
+            if (document.getElementById('loanWorkspaceView').classList.contains('flex')) renderLoans();
+            if (document.getElementById('loanPaymentWorkspaceView').classList.contains('flex')) renderPaymentView();
+            if (document.getElementById('personalWorkspaceView').classList.contains('flex')) renderCashBook();
+            if (document.getElementById('contactsWorkspaceView').classList.contains('flex')) renderContacts();
+            if (activeCid) renderDetails();
+            if (document.getElementById('incomeBalanceView').classList.contains('flex')) renderIncomeBalanceView();
+            if (document.getElementById('expenseBalanceView').classList.contains('flex')) renderExpenseBalanceView();
+        }
+
+        function switchView(view) {
+            const views = ['homeWorkspaceView','clientsWorkspaceView','promisesWorkspaceView','ledgerWorkspaceView','incomeExpenseWorkspaceView','incomeBalanceView','expenseBalanceView','memoWorkspaceView','vehicleWorkspaceView','vehicleDetailWorkspaceView','loanWorkspaceView','loanPaymentWorkspaceView','personalWorkspaceView','contactsWorkspaceView','moreWorkspaceView','rtoWorkspaceView'];
+            views.forEach(v => { const el = document.getElementById(v); if (el) { el.classList.add('hidden'); el.classList.remove('flex'); } });
+            document.getElementById('backBtn').classList.add('hidden');
+            document.getElementById('custEditBtn')?.classList.add('hidden');
+            document.getElementById('payViewBackRow').classList.add('hidden');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('mainContent').scrollTop = 0;
+
+            const show = (id, title, navId) => {
+                const el = document.getElementById(id);
+                el.classList.remove('hidden');
+                el.classList.add('flex');
+                document.getElementById('pageTitle').innerText = title;
+                if (navId) document.getElementById(navId).classList.add('active');
+            };
+
+            if (view === 'home') { show('homeWorkspaceView', 'KHATA PRO', 'navHome'); renderAll(); }
+            else if (view === 'clients') { show('clientsWorkspaceView', '👥 CLIENTS'); renderAll(); }
+            else if (view === 'promises') { show('promisesWorkspaceView', '⏰ PROMISES'); renderAll(); }
+            else if (view === 'income') { show('incomeExpenseWorkspaceView', '💰 INCOME'); currentIETab = 'income'; switchIETab('income'); renderIncomeExpenseList(); }
+            else if (view === 'memo') { show('memoWorkspaceView', '📝 MEMO', 'navMemo'); renderReminders(); }
+            else if (view === 'vehicle') { show('vehicleWorkspaceView', '🚗 VEHICLE'); renderVehicleExpenses(); }
+            else if (view === 'vehicleDetail') { show('vehicleDetailWorkspaceView', '🚗 VEHICLE'); renderVehicleDetails(); }
+            else if (view === 'loan') { show('loanWorkspaceView', '💰 LOAN', 'navLoan'); renderLoans(); }
+            else if (view === 'loanPayment') { show('loanPaymentWorkspaceView', 'PAYMENTS', 'navLoan'); document.getElementById('payViewBackRow').classList.remove('hidden'); renderPaymentView(); }
+            else if (view === 'cash') { show('personalWorkspaceView', '💰 CASH BOOK', 'navCash'); renderCashBook(); }
+            else if (view === 'contacts') { show('contactsWorkspaceView', '📇 CONTACTS'); renderContacts(); }
+            else if (view === 'more') { show('moreWorkspaceView', '📋 MORE', 'navMore'); }
+            else if (view === 'rto') { show('rtoWorkspaceView', '🚗 RTO PORTAL', 'navMore'); if (document.getElementById('rtoAppSection').style.display !== 'block') { document.getElementById('rtoLoginSection').style.display = 'flex'; document.getElementById('rtoAppSection').style.display = 'none'; } }
+        }
+
+        function goHome() { activeCid = null; switchView('home'); }
+        function goBackFromPaymentView() { currentViewLoanId = null; switchView('loan'); }
+        function goBackFromBalanceView() { if (currentBalanceView === 'income') switchView('income'); else if (currentBalanceView === 'expense') { switchView('income'); switchIETab('expense'); } currentBalanceView = null; }
+        function openIncomeBalanceView() { currentBalanceView = 'income'; document.getElementById('incomeExpenseWorkspaceView').classList.add('hidden'); document.getElementById('incomeExpenseWorkspaceView').classList.remove('flex'); document.getElementById('incomeBalanceView').classList.remove('hidden'); document.getElementById('incomeBalanceView').classList.add('flex'); document.getElementById('pageTitle').innerText = "📊 INCOME BALANCE"; renderIncomeBalanceView(); }
+        function openCustomer(id) { activeCid = id; currentLedgerTypeFilter = "ALL"; document.getElementById('clientsWorkspaceView').classList.add('hidden'); document.getElementById('clientsWorkspaceView').classList.remove('flex'); document.getElementById('ledgerWorkspaceView').classList.remove('hidden'); document.getElementById('ledgerWorkspaceView').classList.add('flex'); document.getElementById('backBtn').classList.remove('hidden'); document.getElementById('pageTitle').innerText = db.customers.find(c => c.id === id)?.name || "Customer"; renderDetails(); renderDashboard(); }
+
+        const themeColors = {
+            green: { bg: 'linear-gradient(145deg, #f0fdf4 0%, #dcfce7 100%)', header: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', body: 'theme-green', label: '🌿 Green' },
+            blue: { bg: 'linear-gradient(145deg, #eff6ff 0%, #dbeafe 100%)', header: 'linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)', body: 'theme-blue', label: '💙 Blue' },
+            purple: { bg: 'linear-gradient(145deg, #f5f3ff 0%, #ede9fe 100%)', header: 'linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%)', body: 'theme-purple', label: '💜 Purple' },
+            rose: { bg: 'linear-gradient(145deg, #fff1f2 0%, #fecdd3 100%)', header: 'linear-gradient(135deg, #e11d48 0%, #fb7185 100%)', body: 'theme-rose', label: '🌹 Rose' },
+            amber: { bg: 'linear-gradient(145deg, #fffbeb 0%, #fef3c7 100%)', header: 'linear-gradient(135deg, #d97706 0%, #fbbf24 100%)', body: 'theme-amber', label: '🟡 Amber' },
+            cyan: { bg: 'linear-gradient(145deg, #ecfeff 0%, #cffafe 100%)', header: 'linear-gradient(135deg, #0891b2 0%, #22d3ee 100%)', body: 'theme-cyan', label: '🩵 Cyan' },
+            gray: { bg: 'linear-gradient(145deg, #f9fafb 0%, #e5e7eb 100%)', header: 'linear-gradient(135deg, #4b5563 0%, #9ca3af 100%)', body: 'theme-gray', label: '⬜ Gray' },
+            pink: { bg: 'linear-gradient(145deg, #fdf2f8 0%, #fbcfe8 100%)', header: 'linear-gradient(135deg, #db2777 0%, #f472b6 100%)', body: 'theme-pink', label: '🌸 Pink' }
+        };
+
+        function applyTheme(themeName) { db.theme = themeName; const theme = themeColors[themeName]; if (!theme) return; document.body.className = document.body.className.split(' ').filter(cls => !cls.startsWith('theme-')).join(' '); document.body.classList.add(theme.body); if (db.darkMode) document.body.classList.add('dark-mode'); const header = document.getElementById('mainHeader'); if (header) header.style.background = theme.header; document.body.style.background = theme.bg; saveDB(); document.querySelectorAll('.color-option').forEach(el => { el.classList.remove('active'); if (el.dataset.theme === themeName) el.classList.add('active'); }); }
+        function toggleTheme() { db.darkMode = !db.darkMode; if (db.darkMode) { document.body.classList.add('dark-mode'); document.getElementById('themeIcon').className = 'fa-solid fa-sun'; } else { document.body.classList.remove('dark-mode'); document.getElementById('themeIcon').className = 'fa-solid fa-moon'; } saveDB(); }
+        function openThemeSwitcher() { let html = `<h2 class="font-black text-center text-xl mb-3">🎨 COLOR THEMES</h2><div class="flex flex-wrap gap-3 justify-center mb-4">`; for (const [key, value] of Object.entries(themeColors)) { const active = db.theme === key ? 'active' : ''; html += `<div class="color-option ${active}" data-theme="${key}" style="background: ${value.bg};" onclick="selectTheme('${key}')"></div>`; } html += `</div><button class="w-full p-3 bg-gray-600 text-white rounded-lg font-bold" onclick="closeModal()">Close</button>`; openModal(html); }
+        function selectTheme(theme) { applyTheme(theme); setTimeout(() => closeModal(), 400); }
+
+        function pressKey(n) { if (currentPinInput.length < 4) { currentPinInput += n; updateDots(); if (currentPinInput.length === 4) setTimeout(checkPin, 150); } }
+        function clearCurrentPin() { currentPinInput = ""; updateDots(); }
+        function updateDots() { for (let i = 0; i < 4; i++) { const el = document.getElementById(`dot-${i}`); if (el) { if (i < currentPinInput.length) { el.className = 'lock-dot active'; } else { el.className = 'lock-dot'; } } } }
+        function checkPin() {
+            if (!db.pin || db.pin === '') { if (!tempFirstSetupPin) { tempFirstSetupPin = currentPinInput; currentPinInput = ""; updateDots(); document.getElementById('lockScreenSubtitle').innerText = "✅ Confirm new PIN"; return; } else { if (currentPinInput === tempFirstSetupPin) { db.pin = currentPinInput; tempFirstSetupPin = ""; saveDB(); alert("✅ PIN Activated"); document.getElementById('lockScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'flex'; renderAll(); } else { alert("❌ Mismatch"); tempFirstSetupPin = ""; currentPinInput = ""; updateDots(); document.getElementById('lockScreenSubtitle').innerText = "Create 4-digit PIN"; } return; } }
+            if (currentPinInput === db.pin) { document.getElementById('lockScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'flex'; renderAll(); } else { alert("⛔ Invalid PIN"); currentPinInput = ""; updateDots(); }
+        }
+        function lockApp() { currentPinInput = ""; updateDots(); document.getElementById('lockScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; const sub = document.getElementById('lockScreenSubtitle'); if (!db.pin || db.pin === '') sub.innerText = "✨ Create 4-digit PIN"; else sub.innerText = "🔒 Enter PIN"; }
+        function fullResetApp() { if (confirm("⚠️ DELETE all data?")) { localStorage.removeItem(STORAGE_ID); location.reload(); } }
+
+        function openModal(html) { document.getElementById('modalBox').innerHTML = html; document.getElementById('modalOverlay').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
+
+        function renderDashboard() {
+            let totalBal = 0; db.trans.forEach(t => totalBal += (t.type === 'GAVE' ? t.amt : -t.amt));
+            const balDisplay = Math.abs(totalBal);
+            document.getElementById('dashTotalBalanceHome').innerText = '₹' + balDisplay.toFixed(0);
+            document.getElementById('dashGetAmountHome').innerText = totalBal >= 0 ? 'You\'ll Get ₹' + balDisplay.toFixed(0) : 'You\'ll Give ₹' + balDisplay.toFixed(0);
+            const now = new Date(), month = now.getMonth(), year = now.getFullYear();
+            let monthIncome = 0, monthExpense = 0;
+            (db.incomes || []).forEach(i => { const d = new Date(i.date); if (d.getMonth() === month && d.getFullYear() === year) monthIncome += i.amount; });
+            (db.expenses || []).forEach(e => { const d = new Date(e.date); if (d.getMonth() === month && d.getFullYear() === year) monthExpense += e.amount; });
+            document.getElementById('dashIncomeHome').innerText = '₹' + monthIncome.toFixed(0);
+            document.getElementById('dashExpenseHome').innerText = '₹' + monthExpense.toFixed(0);
+        }
+
+        function renderHomePreviews() {
+            const remContainer = document.getElementById('homeRemindersList');
+            const remPreview = document.getElementById('homeRemindersPreview');
+            if (!db.reminders) db.reminders = [];
+            const today = new Date(); today.setHours(0,0,0,0);
+            const dueSoon = db.reminders.filter(rem => { const due = new Date(rem.dueDate); due.setHours(0,0,0,0); const d = Math.ceil((due - today) / 86400000); return d >= 0 && d <= 3; }).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            const ind1 = document.getElementById('indicatorDay1'), ind2 = document.getElementById('indicatorDay2'), ind3 = document.getElementById('indicatorDay3');
+            ind1.className = 'w-5 h-5 rounded-full bg-gray-300'; ind2.className = 'w-5 h-5 rounded-full bg-gray-300'; ind3.className = 'w-5 h-5 rounded-full bg-gray-300';
+            if (dueSoon.length > 0) {
+                remPreview.classList.remove('hidden');
+                let html = ''; let days = [];
+                dueSoon.forEach(rem => { const due = new Date(rem.dueDate); due.setHours(0,0,0,0); const d = Math.ceil((due - today) / 86400000); days.push(d); let t = ''; if (d === 0) t = '🔥 Today!'; else if (d === 1) t = '⚠️ Tomorrow'; else if (d === 2) t = '📅 2 days'; else t = '📅 3 days'; html += `<div class="flex justify-between items-center bg-amber-50 border border-amber-200 rounded-lg p-2 text-xs"><span class="text-gray-800"><strong>${rem.title}</strong> — ${t}</span><span class="text-[10px] font-bold text-amber-700">${fmtDate(rem.dueDate)}</span></div>`; });
+                remContainer.innerHTML = html;
+                const min = Math.min(...days);
+                if (min === 0) { ind1.className = 'w-5 h-5 rounded-full blink-red'; ind2.className = 'w-5 h-5 rounded-full blink-red'; ind3.className = 'w-5 h-5 rounded-full blink-red'; }
+                else if (min === 1) ind3.className = 'w-5 h-5 rounded-full blink-green';
+                else if (min === 2) ind2.className = 'w-5 h-5 rounded-full blink-yellow';
+                else ind1.className = 'w-5 h-5 rounded-full blink-red';
+            } else remPreview.classList.add('hidden');
+            
+            const promContainer = document.getElementById('homePromisesList');
+            const promPreview = document.getElementById('homePromisesPreview');
+            if (!db.promises) db.promises = [];
+            const duePromises = db.promises.filter(p => { const due = new Date(p.date); due.setHours(0,0,0,0); const d = Math.ceil((due - today) / 86400000); return d >= 0 && d <= 2; }).sort((a, b) => new Date(a.date) - new Date(b.date));
+            if (duePromises.length > 0) {
+                promPreview.classList.remove('hidden');
+                let html = '';
+                duePromises.forEach(p => { const c = db.customers.find(x => x.id === p.cid); const n = c ? c.name : 'Unknown'; const due = new Date(p.date); due.setHours(0,0,0,0); const d = Math.ceil((due - today) / 86400000); let t = ''; if (d === 0) t = '🔴 Today!'; else if (d === 1) t = '⚠️ Tomorrow'; else t = '📅 2 days'; html += `<div class="flex justify-between items-center bg-red-50 border border-red-200 rounded-lg p-2 text-xs"><span class="text-gray-800"><strong>${n}</strong> — ₹${p.amt.toFixed(2)}</span><span class="text-[10px] font-bold text-red-700">${t}</span></div>`; });
+                promContainer.innerHTML = html;
+            } else promPreview.classList.add('hidden');
+        }
+
+        function renderClientListFeed() {
+            let filtered = db.customers.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()) || (c.phone && c.phone.includes(searchQuery))).sort((a, b) => a.name.localeCompare(b.name));
+            let html = "";
+            filtered.forEach(c => {
+                let bal = 0;
+                db.trans.filter(t => t.cid === c.id).forEach(t => bal += (t.type === 'GAVE' ? t.amt : -t.amt));
+                html += `<div class="client-item" onclick="openCustomer(${c.id})"><div class="flex items-center gap-3"><div class="client-avatar">${c.name[0].toUpperCase()}</div><div><p class="font-extrabold text-gray-800 text-sm">${c.name}</p><p class="text-xs text-gray-500 mt-0.5">${c.phone || '—'}</p></div></div><div class="text-right"><p class="font-extrabold ${bal >= 0 ? 'text-rose-600' : 'text-emerald-600'} text-sm">₹${Math.abs(bal).toFixed(0)}</p><span class="text-[10px] font-bold ${bal >= 0 ? 'text-rose-500' : 'text-emerald-500'}">${bal >= 0 ? 'Get' : 'Give'}</span></div></div>`;
+            });
+            document.getElementById('mainClientListContainer').innerHTML = html || `<div class="empty-state"><i class="fa-solid fa-users"></i><p>No clients</p></div>`;
+        }
+        function openCustModal(cid = null) { const c = cid ? db.customers.find(x => x.id === cid) : { name: '', phone: '' }; openModal(`<h2 class="text-xl font-black mb-4 text-center">${cid ? '✏️ EDIT' : '🌟 ADD CLIENT'}</h2><div class="space-y-3"><input id="cn" class="w-full p-3 rounded-xl font-bold border input-premium" placeholder="Full Name" value="${c.name}"><input id="cp" type="tel" class="w-full p-3 rounded-xl font-bold border input-premium" placeholder="Phone" value="${c.phone || ''}"><button class="w-full p-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black rounded-xl" onclick="saveCust(${cid})">💾 SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button>${cid ? `<button class="w-full p-2 bg-red-600/20 text-red-600 rounded-lg font-bold" onclick="deleteFullCust(${cid})">🗑️ DELETE</button>` : ''}</div>`); }
+        function saveCust(cid) { let n = document.getElementById('cn').value.trim(), p = document.getElementById('cp').value.trim(); if (!n) return alert("Name required"); if (cid) { let c = db.customers.find(x => x.id === cid); c.name = n; c.phone = p; } else { const newId = rand(); db.customers.push({ id: newId, name: n, phone: p }); activeCid = newId; } saveDB(); closeModal(); openCustomer(activeCid); }
+        function deleteFullCust(cid) { if (confirm("DELETE all?")) { db.customers = db.customers.filter(x => x.id !== cid); db.trans = db.trans.filter(x => x.cid !== cid); db.promises = db.promises.filter(x => x.cid !== cid); db.loans = db.loans.filter(x => x.cid !== cid); db.loanPayments = db.loanPayments.filter(x => x.cid !== cid); activeCid = null; saveDB(); closeModal(); goHome(); } }
+
+        function renderDetails() {
+            const cust = db.customers.find(c => c.id === activeCid);
+            if (!cust) { goHome(); return; }
+            document.getElementById('backBtn').classList.remove('hidden');
+            document.getElementById('pageTitle').innerText = cust.name;
+            let rb = 0, cashToday = 0, upiToday = 0, mGave = 0, mGot = 0;
+            const today = getToday(), now = new Date(), cm = now.getMonth(), cy = now.getFullYear();
+            let trans = db.trans.filter(t => t.cid === activeCid).sort((a, b) => new Date(a.date) - new Date(b.date));
+            let cum = 0;
+            trans.forEach(t => { cum += (t.type === 'GAVE' ? t.amt : -t.amt); rb = cum; });
+            trans.forEach(t => { const td = new Date(t.date); if (td.getMonth() === cm && td.getFullYear() === cy) { if (t.type === 'GAVE') mGave += t.amt; else mGot += t.amt; } if (t.date === today && t.type === 'GOT') { if (t.mode === 'CASH') cashToday += t.amt; if (t.mode === 'UPI') upiToday += t.amt; } });
+            const mNet = mGave - mGot;
+            const ledSearch = document.getElementById('ledgerSearchInput')?.value.toLowerCase() || "";
+            const sDate = document.getElementById('filterStartDate')?.value || "";
+            const eDate = document.getElementById('filterEndDate')?.value || "";
+            let filtered = trans.filter(t => { if (currentLedgerTypeFilter !== 'ALL' && t.type !== currentLedgerTypeFilter) return false; if (sDate && t.date < sDate) return false; if (eDate && t.date > eDate) return false; if (ledSearch && !t.rem.toLowerCase().includes(ledSearch) && !t.amt.toString().includes(ledSearch)) return false; return true; });
+            let running = 0, rowsArray = [];
+            filtered.forEach(t => { running += (t.type === 'GAVE' ? t.amt : -t.amt); const row = `<tr class="border-b border-gray-100 hover:bg-purple-50 cursor-pointer" onclick="openEditTrans(${t.id})"><td class="p-2 text-xs"><div><span class="font-black text-purple-600 text-xs">${fmtDate(t.date)}</span><span class="px-2 py-0.5 rounded-full text-[10px] font-bold ml-1 ${t.mode === 'UPI' ? 'bg-blue-100 text-blue-700' : 'bg-emerald-100 text-emerald-700'}">${t.mode || 'CASH'}</span><div class="text-purple-600 text-xs font-bold">${t.rem || '—'}</div></div></td><td class="p-2 text-rose-600 font-black text-xs">${t.type === 'GAVE' ? '₹'+t.amt.toFixed(0) : '-'}</td><td class="p-2 text-emerald-600 font-black text-xs">${t.type === 'GOT' ? '₹'+t.amt.toFixed(0) : '-'}</td><td class="p-2 ${running >= 0 ? 'text-rose-600' : 'text-emerald-600'} font-black text-xs">₹${Math.abs(running).toFixed(0)}</td></tr>`; rowsArray.unshift(row); });
+            document.getElementById('topArea').innerHTML = `<div class="premium-card text-center p-3"><p class="text-[10px] font-black opacity-70 uppercase">${rb >= 0 ? "OUTSTANDING" : "ADVANCE"}</p><h2 class="text-2xl font-black mt-0.5 text-purple-600">₹${Math.abs(rb).toFixed(2)}</h2><div class="grid grid-cols-3 gap-2 mt-2"><div class="bg-green-50 rounded-lg p-2"><div class="text-[8px] font-black text-green-700">GAVE</div><div class="text-xs font-black text-rose-700">₹${mGave.toFixed(0)}</div></div><div class="bg-green-50 rounded-lg p-2"><div class="text-[8px] font-black text-green-700">GOT</div><div class="text-xs font-black text-emerald-700">₹${mGot.toFixed(0)}</div></div><div class="bg-purple-50 rounded-lg p-2"><div class="text-[8px] font-black text-purple-700">NET</div><div class="text-xs font-black ${mNet >= 0 ? 'text-rose-700' : 'text-emerald-700'}">₹${Math.abs(mNet).toFixed(0)}</div></div></div></div>`;
+            document.getElementById('dailyRow').innerHTML = `<div class="premium-card text-center p-2"><div class="text-xs font-black text-purple-600">💵 CASH</div><div class="text-base font-black text-purple-600">₹${cashToday.toFixed(0)}</div></div><div class="premium-card text-center p-2"><div class="text-xs font-black text-purple-600">📲 UPI</div><div class="text-base font-black text-purple-600">₹${upiToday.toFixed(0)}</div></div>`;
+            document.getElementById('ledgerItemsRowsContainer').innerHTML = rowsArray.length ? rowsArray.join('') : `<tr><td colspan="4" class="text-center py-4 text-gray-400 text-xs">No records</td></tr>`;
+        }
+        function setLedgerTypeFilter(f) { currentLedgerTypeFilter = f; ['ALL', 'GAVE', 'GOT'].forEach(lbl => { const btn = document.getElementById(`typeFilter${lbl}`); if (btn) btn.className = lbl === f ? 'px-3 py-1.5 rounded-lg bg-white shadow text-purple-600 text-xs font-black' : 'px-3 py-1.5 rounded-lg text-purple-600 text-xs font-black'; }); renderDetails(); }
+        function toggleDateFilterDrawer() { document.getElementById('dateFilterDrawer').classList.toggle('hidden'); }
+        function clearDateRangeFilters() { document.getElementById('filterStartDate').value = ''; document.getElementById('filterEndDate').value = ''; renderDetails(); }
+        function openEditTrans(tid) { const t = db.trans.find(x => x.id === tid); openModal(`<h2 class="font-black text-center text-xl">✏️ EDIT</h2><div class="space-y-3"><input id="eta" type="number" class="w-full p-4 text-2xl text-center font-black rounded-xl border input-premium" value="${t.amt}"><input id="etr" class="w-full p-3 rounded-lg border input-premium" value="${t.rem || ''}" placeholder="Remarks"><button class="w-full p-3 bg-purple-600 text-white font-black rounded-xl" onclick="updateTrans(${tid})">UPDATE</button><button class="w-full p-3 bg-red-600 text-white font-black rounded-xl" onclick="deleteTrans(${tid})">DELETE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function updateTrans(tid) { let t = db.trans.find(x => x.id === tid); t.amt = Number(document.getElementById('eta').value); t.rem = document.getElementById('etr').value.trim(); saveDB(); closeModal(); }
+        function deleteTrans(tid) { if (confirm("Delete?")) { db.trans = db.trans.filter(x => x.id !== tid); saveDB(); closeModal(); } }
+
+        function openAdd(type) {
+            openModal(`<h2 class="font-black text-center text-xl mb-3">${type === 'GAVE' ? '📤 GAVE' : '📥 GOT'}</h2><div class="space-y-3"><input id="ta" type="number" class="w-full p-4 text-3xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><div class="flex gap-2"><button id="mCash" onclick="setM('CASH')" class="flex-1 py-2 rounded-lg bg-amber-400 text-black font-black">💵 CASH</button><button id="mUpi" onclick="setM('UPI')" class="flex-1 py-2 rounded-lg bg-gray-200 font-bold">📲 UPI</button></div><input id="tr" class="w-full p-3 rounded-lg border input-premium" placeholder="Notes"><div class="grid grid-cols-2 gap-2"><input id="td" type="date" class="p-2 rounded-lg border input-premium" value="${getToday()}"><input id="tt" type="text" class="p-2 rounded-lg border input-premium" value="${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}"></div><input type="hidden" id="tm" value="CASH"><button class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black rounded-xl" onclick="saveTrans('${type}')">✅ SAVE</button><button class="w-full py-2 text-gray-500" onclick="closeModal()">Cancel</button></div>`);
+            setM('CASH');
+        }
+        function setM(m) { document.getElementById('tm').value = m; const cb = document.getElementById('mCash'), ub = document.getElementById('mUpi'); if (m === 'CASH') { cb.className = 'flex-1 py-2 rounded-lg bg-amber-400 text-black font-black'; ub.className = 'flex-1 py-2 rounded-lg bg-gray-200 text-slate-700 font-bold'; } else { cb.className = 'flex-1 py-2 rounded-lg bg-gray-200 text-slate-700 font-bold'; ub.className = 'flex-1 py-2 rounded-lg bg-purple-600 text-white font-black'; } }
+        function saveTrans(type) { let a = parseFloat(document.getElementById('ta').value); if (isNaN(a) || a <= 0) return alert("Valid amount"); let d = document.getElementById('td').value, r = document.getElementById('tr').value.trim(), m = document.getElementById('tm').value, t = document.getElementById('tt').value; if (a && d) { db.trans.push({ id: rand(), cid: activeCid, type, amt: a, date: d, time: t, rem: r, mode: m }); saveDB(); closeModal(); } }
+
+        function openPromiseModal() { openModal(`<h2 class="font-black text-center text-lg">📅 PROMISE</h2><div class="space-y-2 mt-2"><input id="pa" type="number" class="w-full p-2 rounded-lg border input-premium text-center font-black" placeholder="Amount"><input id="pd" type="date" class="w-full p-2 rounded-lg border input-premium" value="${getToday()}"><button class="w-full p-2 bg-indigo-600 text-white font-black rounded-lg" onclick="savePromise()">Set</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function savePromise() { let a = document.getElementById('pa').value, d = document.getElementById('pd').value; if (a && d) { db.promises.push({ id: rand(), cid: activeCid, amt: a, date: d }); saveDB(); closeModal(); } }
+
+        function renderPromisesPage() {
+            if (!db.promises) db.promises = [];
+            if (db.promises.length === 0) { document.getElementById('promisesListContainer').innerHTML = `<div class="empty-state"><i class="fa-solid fa-clock"></i><p>No promises</p></div>`; return; }
+            let html = '';
+            const sorted = [...db.promises].sort((a, b) => new Date(a.date) - new Date(b.date));
+            sorted.forEach(p => { const c = db.customers.find(x => x.id === p.cid); const n = c ? c.name : 'Unknown'; html += `<div class="premium-card flex justify-between items-center"><div><p class="font-black text-gray-800">${n}</p><p class="text-lg font-black text-red-600">₹${p.amt}</p><p class="text-xs text-gray-500">Due: ${fmtDate(p.date)}</p></div><div class="flex gap-2"><button onclick="openEditPromiseModal(${p.id})" class="btn-premium blue text-xs py-2 px-3">Edit</button><button onclick="deletePromise(${p.id})" class="btn-premium red text-xs py-2 px-3">Del</button></div></div>`; });
+            document.getElementById('promisesListContainer').innerHTML = html;
+        }
+        function openEditPromiseModal(id) { const p = db.promises.find(x => x.id === id); if (!p) return; openModal(`<h2 class="font-black text-center text-lg">✏️ Edit</h2><div class="space-y-3"><input id="editPromiseAmt" type="number" class="w-full p-3 rounded-xl border input-premium text-center" value="${p.amt}"><input id="editPromiseDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${p.date}"><button class="w-full p-3 bg-blue-600 text-white font-black rounded-xl" onclick="updatePromise(${id})">UPDATE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function updatePromise(id) { const p = db.promises.find(x => x.id === id); if (p) { p.amt = parseFloat(document.getElementById('editPromiseAmt').value); p.date = document.getElementById('editPromiseDate').value; saveDB(); closeModal(); renderAll(); } }
+        function deletePromise(id) { if (confirm("Delete?")) { db.promises = db.promises.filter(x => x.id !== id); saveDB(); renderAll(); } }
+
+        function switchIETab(tab) {
+            currentIETab = tab;
+            const ib = document.getElementById('incomeTabBtn'), eb = document.getElementById('expenseTabBtn'), ab = document.getElementById('addIeBtn');
+            if (tab === 'income') { ib.className = "flex-1 py-3 rounded-xl font-black text-sm bg-gradient-to-r from-emerald-500 to-green-600 text-white"; eb.className = "flex-1 py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-700"; ab.innerHTML = '+ ADD INCOME'; ab.onclick = openAddIncomeModal; }
+            else { ib.className = "flex-1 py-3 rounded-xl font-black text-sm bg-gray-200 text-gray-700"; eb.className = "flex-1 py-3 rounded-xl font-black text-sm bg-gradient-to-r from-red-500 to-rose-600 text-white"; ab.innerHTML = '+ ADD EXPENSE'; ab.onclick = openAddExpenseModal; }
+            renderIncomeExpenseList();
+        }
+        function openAddIncomeModal() { const cats = db.incomeCategories || ['Salary', 'Business', 'Rent', 'Investment', 'Gift', 'Other']; let opts = '<option value="">-- Select --</option>'; cats.forEach(c => opts += `<option value="${c}">💰 ${c}</option>`); openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Add Income</h2><div class="space-y-3"><input id="ieAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><div class="flex gap-2"><select id="ieCategory" class="flex-1 p-2 rounded-xl border input-premium">${opts}</select><button onclick="addNewCategory('income')" class="bg-emerald-600 text-white px-3 py-2 rounded-xl font-bold text-sm">+</button></div><input id="ieDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${getToday()}"><textarea id="ieNotes" class="w-full p-2 rounded-xl border input-premium" rows="2" placeholder="Notes"></textarea><button class="w-full p-3 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-black rounded-xl" onclick="saveIncomeEntry()">💾 SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function saveIncomeEntry() { const amt = parseFloat(document.getElementById('ieAmount').value); if (isNaN(amt) || amt <= 0) return alert("Valid amount"); const cat = document.getElementById('ieCategory').value; if (!cat) return alert("Select category"); const date = document.getElementById('ieDate').value, notes = document.getElementById('ieNotes').value.trim(); db.incomes.push({ id: rand(), amount: amt, category: cat, date, notes, usedAmount: 0 }); saveDB(); closeModal(); renderIncomeExpenseList(); }
+        function openAddExpenseModal() { const incCats = db.incomes.reduce((acc, inc) => { const used = inc.usedAmount || 0; const av = inc.amount - used; if (av > 0) { if (!acc[inc.category]) acc[inc.category] = 0; acc[inc.category] += av; } return acc; }, {}); let incOpts = '<option value="">-- Select Income --</option>'; Object.keys(incCats).forEach(c => { incOpts += `<option value="${c}">${c} (₹${incCats[c].toFixed(0)})</option>`; }); const expCats = db.expenseCategories || ['Food', 'Travel', 'Bills', 'Shopping', 'Medical', 'Other']; let expOpts = '<option value="">-- Select Expense --</option>'; expCats.forEach(c => expOpts += `<option value="${c}">${c}</option>`); openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Add Expense</h2><div class="space-y-3"><input id="ieAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><select id="ieIncomeCategory" class="w-full p-2 rounded-xl border input-premium">${incOpts}</select><div class="flex gap-2"><select id="ieExpenseCategory" class="flex-1 p-2 rounded-xl border input-premium">${expOpts}</select><button onclick="addNewCategory('expense')" class="bg-red-600 text-white px-3 py-2 rounded-xl font-bold text-sm">+</button></div><input id="ieDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${getToday()}"><textarea id="ieNotes" class="w-full p-2 rounded-xl border input-premium" rows="2" placeholder="Notes"></textarea><button class="w-full p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-black rounded-xl" onclick="saveExpenseEntry()">💾 DEDUCT</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function saveExpenseEntry() { const amt = parseFloat(document.getElementById('ieAmount').value); if (isNaN(amt) || amt <= 0) return alert("Valid amount"); const incCat = document.getElementById('ieIncomeCategory').value; if (!incCat) return alert("Select income"); const expCat = document.getElementById('ieExpenseCategory').value; if (!expCat) return alert("Select expense"); const date = document.getElementById('ieDate').value, notes = document.getElementById('ieNotes').value.trim(); let available = db.incomes.filter(i => i.category === incCat).map(i => ({ ...i, av: i.amount - (i.usedAmount || 0) })).filter(i => i.av > 0).sort((a, b) => a.date.localeCompare(b.date)); const totalAv = available.reduce((s, i) => s + i.av, 0); if (totalAv < amt) return alert(`Insufficient! Available: ₹${totalAv.toFixed(2)}`); let rem = amt, ded = []; for (let inc of available) { if (rem <= 0) break; const d = Math.min(rem, inc.av); inc.usedAmount = (inc.usedAmount || 0) + d; rem -= d; ded.push({ id: inc.id, category: inc.category, amount: d }); const dbInc = db.incomes.find(i => i.id === inc.id); if (dbInc) dbInc.usedAmount = inc.usedAmount; } db.expenses.push({ id: rand(), amount: amt, category: expCat, incomeCategory: incCat, date, notes, deductedFrom: ded }); saveDB(); closeModal(); renderIncomeExpenseList(); }
+        function addNewCategory(type) { const input = prompt('New category:'); if (input && input.trim()) { const cat = input.trim(); if (type === 'income') { if (!db.incomeCategories.includes(cat)) { db.incomeCategories.push(cat); saveDB(); alert('Added'); closeModal(); } else alert('Exists'); } else { if (!db.expenseCategories.includes(cat)) { db.expenseCategories.push(cat); saveDB(); alert('Added'); closeModal(); } else alert('Exists'); } } }
+        function setIEFilter(f) { currentIEFilter = f; ['ALL', 'TODAY', 'WEEK', 'MONTH'].forEach(x => { const b = document.getElementById(`ieFilter${x}`); if (b) b.className = x === f ? 'filter-btn active' : 'filter-btn'; }); renderIncomeExpenseList(); }
+        function clearIEFilters() { document.getElementById('ieSearchInput').value = ''; document.getElementById('ieFilterStartDate').value = ''; document.getElementById('ieFilterEndDate').value = ''; setIEFilter('ALL'); }
+        function clearIEDateRange() { document.getElementById('ieFilterStartDate').value = ''; document.getElementById('ieFilterEndDate').value = ''; renderIncomeExpenseList(); }
+        function getDateRangeForFilter(f) { const now = new Date(); const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()); let s = null, e = null; if (f === 'TODAY') { s = new Date(today); e = new Date(today); } else if (f === 'WEEK') { s = new Date(today); s.setDate(today.getDate() - 6); e = new Date(today); } else if (f === 'MONTH') { s = new Date(today.getFullYear(), today.getMonth(), 1); e = new Date(today.getFullYear(), today.getMonth() + 1, 0); } return { s, e }; }
+        function renderIncomeExpenseList() {
+            const incomes = db.incomes || [], expenses = db.expenses || [];
+            const search = document.getElementById('ieSearchInput')?.value.toLowerCase() || '';
+            let { s, e } = getDateRangeForFilter(currentIEFilter);
+            const sI = document.getElementById('ieFilterStartDate')?.value || '', eI = document.getElementById('ieFilterEndDate')?.value || '';
+            if (sI) s = new Date(sI); if (eI) e = new Date(eI);
+            const gd = (ds) => { const d = new Date(ds); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); };
+            let fIncomes = incomes.filter(inc => { const id = gd(inc.date); if (s) { const st = new Date(s.getFullYear(), s.getMonth(), s.getDate()); if (id < st) return false; } if (e) { const en = new Date(e.getFullYear(), e.getMonth(), e.getDate()); if (id > en) return false; } if (search) { const c = inc.category.toLowerCase(), n = (inc.notes || '').toLowerCase(), a = inc.amount.toString(); return c.includes(search) || n.includes(search) || a.includes(search); } return true; });
+            let fExpenses = expenses.filter(exp => { const ed = gd(exp.date); if (s) { const st = new Date(s.getFullYear(), s.getMonth(), s.getDate()); if (ed < st) return false; } if (e) { const en = new Date(e.getFullYear(), e.getMonth(), e.getDate()); if (ed > en) return false; } if (search) { const c = exp.category.toLowerCase(), n = (exp.notes || '').toLowerCase(), a = exp.amount.toString(); return c.includes(search) || n.includes(search) || a.includes(search); } return true; });
+            const ti = fIncomes.reduce((x, i) => x + i.amount, 0), te = fExpenses.reduce((x, e) => x + e.amount, 0), bal = ti - te;
+            document.getElementById('ieSummaryIncome').innerText = '₹' + ti.toFixed(2);
+            document.getElementById('ieSummaryExpense').innerText = '₹' + te.toFixed(2);
+            document.getElementById('ieSummaryBalance').innerText = '₹' + bal.toFixed(2);
+            let items = currentIETab === 'income' ? fIncomes : fExpenses;
+            let html = '';
+            if (items.length === 0) html = `<div class="empty-state"><i class="fa-solid fa-inbox"></i><p>No records</p></div>`;
+            else {
+                items.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(item => {
+                    const isInc = currentIETab === 'income';
+                    const clr = isInc ? 'text-emerald-600' : 'text-red-600';
+                    const pfx = isInc ? '+' : '-';
+                    const ef = isInc ? `openEditIncomeModal(${item.id})` : `openEditExpenseModal(${item.id})`;
+                    let av = '';
+                    if (isInc) { const u = item.usedAmount || 0, a = item.amount - u; let cc = 'available-green'; if (a < item.amount * 0.3) cc = 'available-red'; else if (a < item.amount * 0.6) cc = 'available-yellow'; av = `<span class="${cc}">Avail: ₹${a.toFixed(0)}</span>`; }
+                    html += `<div class="ie-list-item cursor-pointer" onclick="${ef}"><div><span class="font-bold ${isInc ? 'text-emerald-700' : 'text-red-700'} text-sm">${item.category}</span><div class="mt-1">${av}</div><p class="text-xs text-gray-500 mt-0.5">${item.notes || ''} ${fmtDate(item.date)}</p></div><span class="text-lg font-black ${clr}">${pfx}₹${item.amount.toFixed(0)}</span></div>`;
+                });
+                const total = items.reduce((x, i) => x + i.amount, 0);
+                html += `<div class="balance-card total"><span class="b-label">TOTAL</span><span class="b-amount">₹${total.toFixed(2)}</span></div>`;
+            }
+            document.getElementById('ieListContainer').innerHTML = html;
+        }
+        function openEditIncomeModal(id) { const inc = db.incomes.find(i => i.id === id); if (!inc) return; const cats = db.incomeCategories || []; let opts = ''; cats.forEach(c => opts += `<option value="${c}" ${inc.category === c ? 'selected' : ''}>${c}</option>`); openModal(`<h2 class="font-black text-center text-lg mb-3">✏️ Edit</h2><div class="space-y-3"><input id="ieAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" value="${inc.amount}"><select id="ieCategory" class="w-full p-2 rounded-xl border input-premium">${opts}</select><input id="ieDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${inc.date}"><textarea id="ieNotes" class="w-full p-2 rounded-xl border input-premium" rows="2">${inc.notes || ''}</textarea><button class="w-full p-3 bg-blue-600 text-white font-black rounded-xl" onclick="updateIncomeEntry(${id})">UPDATE</button><button class="w-full p-2 bg-red-600 text-white font-black rounded-xl" onclick="deleteIncomeEntry(${id})">DELETE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function updateIncomeEntry(id) { const inc = db.incomes.find(i => i.id === id); if (inc) { inc.amount = parseFloat(document.getElementById('ieAmount').value); inc.category = document.getElementById('ieCategory').value; inc.date = document.getElementById('ieDate').value; inc.notes = document.getElementById('ieNotes').value.trim(); saveDB(); closeModal(); renderIncomeExpenseList(); } }
+        function deleteIncomeEntry(id) { if (confirm("Delete?")) { db.incomes = db.incomes.filter(i => i.id !== id); saveDB(); renderIncomeExpenseList(); closeModal(); } }
+        function openEditExpenseModal(id) { const exp = db.expenses.find(e => e.id === id); if (!exp) return; const incCats = db.incomeCategories || []; let incOpts = ''; incCats.forEach(c => incOpts += `<option value="${c}" ${exp.incomeCategory === c ? 'selected' : ''}>${c}</option>`); const expCats = db.expenseCategories || []; let expOpts = ''; expCats.forEach(c => expOpts += `<option value="${c}" ${exp.category === c ? 'selected' : ''}>${c}</option>`); openModal(`<h2 class="font-black text-center text-lg mb-3">✏️ Edit</h2><div class="space-y-3"><input id="ieAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" value="${exp.amount}"><select id="ieIncomeCategory" class="w-full p-2 rounded-xl border input-premium">${incOpts}</select><select id="ieExpenseCategory" class="w-full p-2 rounded-xl border input-premium">${expOpts}</select><input id="ieDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${exp.date}"><textarea id="ieNotes" class="w-full p-2 rounded-xl border input-premium" rows="2">${exp.notes || ''}</textarea><button class="w-full p-3 bg-blue-600 text-white font-black rounded-xl" onclick="updateExpenseEntry(${id})">UPDATE</button><button class="w-full p-2 bg-red-600 text-white font-black rounded-xl" onclick="deleteExpenseEntry(${id})">DELETE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function updateExpenseEntry(id) { const exp = db.expenses.find(e => e.id === id); if (!exp) return; if (exp.deductedFrom) { exp.deductedFrom.forEach(d => { const inc = db.incomes.find(i => i.id === d.id); if (inc) inc.usedAmount = Math.max(0, (inc.usedAmount || 0) - d.amount); }); } const newAmt = parseFloat(document.getElementById('ieAmount').value); const newInc = document.getElementById('ieIncomeCategory').value; const newExp = document.getElementById('ieExpenseCategory').value; const newDate = document.getElementById('ieDate').value; const newNotes = document.getElementById('ieNotes').value.trim(); if (isNaN(newAmt) || newAmt <= 0) return alert("Valid amount"); let av = db.incomes.filter(i => i.category === newInc).map(i => ({ ...i, av: i.amount - (i.usedAmount || 0) })).filter(i => i.av > 0).sort((a, b) => a.date.localeCompare(b.date)); const totalAv = av.reduce((x, i) => x + i.av, 0); if (totalAv < newAmt) return alert("Insufficient"); let rem = newAmt, nd = []; for (let inc of av) { if (rem <= 0) break; const d = Math.min(rem, inc.av); inc.usedAmount = (inc.usedAmount || 0) + d; rem -= d; nd.push({ id: inc.id, category: inc.category, amount: d }); const dbInc = db.incomes.find(i => i.id === inc.id); if (dbInc) dbInc.usedAmount = inc.usedAmount; } exp.amount = newAmt; exp.incomeCategory = newInc; exp.category = newExp; exp.date = newDate; exp.notes = newNotes; exp.deductedFrom = nd; saveDB(); closeModal(); renderIncomeExpenseList(); }
+        function deleteExpenseEntry(id) { if (!confirm("Delete?")) return; const exp = db.expenses.find(e => e.id === id); if (exp && exp.deductedFrom) { exp.deductedFrom.forEach(d => { const inc = db.incomes.find(i => i.id === d.id); if (inc) inc.usedAmount = Math.max(0, (inc.usedAmount || 0) - d.amount); }); } db.expenses = db.expenses.filter(e => e.id !== id); saveDB(); renderIncomeExpenseList(); closeModal(); }
+
+        function renderIncomeBalanceView() { const incomes = db.incomes || [], expenses = db.expenses || []; const ti = incomes.reduce((x, i) => x + i.amount, 0), te = expenses.reduce((x, e) => x + e.amount, 0), bal = ti - te; let html = `<div class="balance-card income"><span class="b-label">Total Income</span><span class="b-amount">₹${ti.toFixed(2)}</span></div><div class="balance-card expense"><span class="b-label">Total Expense</span><span class="b-amount">₹${te.toFixed(2)}</span></div><div class="balance-card total"><span class="b-label">Balance</span><span class="b-amount">₹${Math.abs(bal).toFixed(2)}</span></div>`; if (incomes.length > 0) { const cm = new Map(); incomes.forEach(i => { if (!cm.has(i.category)) cm.set(i.category, { t: 0, u: 0 }); const d = cm.get(i.category); d.t += i.amount; d.u += (i.usedAmount || 0); }); html += `<div class="mt-3"><p class="text-sm font-bold text-gray-500 mb-2">By Category</p>`; cm.forEach((d, c) => { const a = d.t - d.u; const pu = d.t > 0 ? (d.u / d.t) * 100 : 0; let cc = 'text-emerald-600', pc = 'bg-emerald-500'; if (pu > 70) { cc = 'text-red-600'; pc = 'bg-red-500'; } else if (pu > 40) { cc = 'text-amber-600'; pc = 'bg-amber-500'; } html += `<div class="premium-card mb-2"><div class="flex justify-between items-center mb-1"><span class="font-extrabold text-purple-700">${c}</span><span class="font-bold text-emerald-600">+₹${d.t.toFixed(2)}</span></div><div class="flex justify-between items-end"><div><span class="font-bold ${cc}">Avail: ₹${a.toFixed(2)}</span><span class="text-xs text-gray-400 ml-2">(Used: ₹${d.u.toFixed(2)})</span></div><div class="w-20"><div class="w-full h-1.5 bg-gray-200 rounded-full"><div class="${pc} h-1.5 rounded-full" style="width: ${Math.min(pu, 100)}%"></div></div></div></div></div>`; }); html += `</div>`; } document.getElementById('incomeBalanceList').innerHTML = html; }
+        function renderExpenseBalanceView() { const expenses = db.expenses || []; const te = expenses.reduce((x, e) => x + e.amount, 0); let html = `<div class="balance-card expense"><span class="b-label">Total Expense</span><span class="b-amount">₹${te.toFixed(2)}</span></div>`; if (expenses.length > 0) { const cm = new Map(); expenses.forEach(e => { if (!cm.has(e.category)) cm.set(e.category, 0); cm.set(e.category, cm.get(e.category) + e.amount); }); html += `<div class="mt-3"><p class="text-sm font-bold text-gray-500 mb-2">By Category</p>`; cm.forEach((a, c) => { html += `<div class="flex justify-between items-center py-2 border-b border-gray-100"><span class="font-bold text-red-700">${c}</span><span class="font-bold text-red-600">-₹${a.toFixed(2)}</span></div>`; }); html += `</div>`; } document.getElementById('expenseBalanceList').innerHTML = html; }
+
+        let currentVehicleDetailName = '';
+        function setVehicleFilter(f) { currentVehicleFilter = f; renderVehicleExpenses(); }
+        function openVehicleDetail(v) { currentVehicleDetailName = v; switchView('vehicleDetail'); renderVehicleDetails(); }
+        function goBackToVehicleList() { switchView('vehicle'); }
+        function renderVehicleDetails() { const v = currentVehicleDetailName; if (!v) { document.getElementById('vehicleDetailName').innerText = '—'; document.getElementById('vehicleDetailExpense').innerText = '₹0'; document.getElementById('vehicleDetailCollection').innerText = '₹0'; document.getElementById('vehicleDetailNet').innerText = '₹0'; document.getElementById('vehicleDetailEntriesList').innerHTML = ''; return; } const entries = db.vehicleExpenses.filter(e => e.vehicleName === v); document.getElementById('vehicleDetailName').innerText = v; let te = 0, tc = 0; entries.forEach(e => { if (e.type === 'expense') te += e.amount; else if (e.type === 'collection') tc += e.amount; }); const net = tc - te; document.getElementById('vehicleDetailExpense').innerText = '₹' + te.toFixed(0); document.getElementById('vehicleDetailCollection').innerText = '₹' + tc.toFixed(0); document.getElementById('vehicleDetailNet').innerText = '₹' + Math.abs(net).toFixed(0); document.getElementById('vehicleDetailNet').className = `font-black text-base ${net >= 0 ? 'text-green-600' : 'text-red-600'}`; let html = ''; const sorted = entries.sort((a, b) => new Date(b.date) - new Date(a.date)); if (sorted.length === 0) html = '<div class="empty-state"><p>No entries</p></div>'; else sorted.forEach(e => { const tl = e.type === 'expense' ? 'Expense' : 'Collection'; const cc = e.type === 'expense' ? 'text-red-600' : 'text-green-600'; const bg = e.type === 'expense' ? 'bg-red-50' : 'bg-green-50'; html += `<div class="premium-card ${bg} mb-2 cursor-pointer" onclick="openEditVehicleExpenseModal(${e.id})"><div class="flex justify-between items-start"><div><div class="flex items-center gap-2"><span class="font-black text-gray-800 text-sm">${e.expenseType || 'General'}</span></div><p class="text-xs text-gray-600 mt-0.5">${e.remarks || '—'}</p><div class="flex gap-2 mt-1 text-[10px] text-gray-400"><span>${fmtDate(e.date)}</span><span class="${cc} font-bold">${tl}</span></div></div><div class="text-right"><p class="font-black text-base ${cc}">₹${e.amount.toFixed(0)}</p></div></div></div>`; }); document.getElementById('vehicleDetailEntriesList').innerHTML = html; }
+        function renderVehicleExpenses() { if (!db.vehicleExpenses) db.vehicleExpenses = []; const vg = {}; const sorted = [...db.vehicleExpenses].sort((a, b) => new Date(b.date) - new Date(a.date)); sorted.forEach(e => { const n = e.vehicleName || 'Unknown'; if (!vg[n]) vg[n] = []; vg[n].push(e); }); let fe = sorted; if (currentVehicleFilter !== 'ALL') fe = sorted.filter(e => e.vehicleName === currentVehicleFilter); const sc = document.getElementById('vehicleSummaryContainer'); let sh = ''; const vn = Object.keys(vg); if (vn.length === 0) sh = `<div class="text-center text-gray-400 py-2 text-sm">No vehicles yet</div>`; else { sh = ''; vn.forEach(n => { const entries = vg[n]; let te = 0, tc = 0; entries.forEach(e => { if (e.type === 'expense') te += e.amount; else tc += e.amount; }); const net = tc - te; const nc = net >= 0 ? 'text-green-600' : 'text-red-600'; sh += `<div class="vehicle-summary-card cursor-pointer" onclick="openVehicleDetail('${n}')"><div class="flex justify-between items-center"><div><h3 class="font-black text-gray-800 text-sm">${n}</h3><div class="flex gap-2 text-xs mt-1"><span class="text-red-600 font-bold">Exp: ₹${te.toFixed(0)}</span><span class="text-green-600 font-bold">Col: ₹${tc.toFixed(0)}</span></div></div><div><p class="text-[10px] font-bold text-gray-400">Net</p><p class="text-base font-black ${nc}">₹${Math.abs(net).toFixed(0)}</p></div></div><button onclick="event.stopPropagation();openAddVehicleExpenseModal('${n}')" class="btn-premium blue text-xs py-1 px-2 mt-2 w-full">+ Add</button></div>`; }); } sc.innerHTML = sh; let html = ''; fe.forEach(e => { const tl = e.type === 'expense' ? 'Expense' : 'Collection'; const cc = e.type === 'expense' ? 'text-red-600' : 'text-green-600'; const bg = e.type === 'expense' ? 'bg-red-50' : 'bg-green-50'; html += `<div class="premium-card ${bg} mb-2 cursor-pointer" onclick="openEditVehicleExpenseModal(${e.id})"><div class="flex justify-between items-start"><div><div class="flex items-center gap-2"><span class="font-black text-gray-800 text-sm">${e.vehicleName}</span><span class="text-[10px] px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full font-bold">${e.expenseType || 'General'}</span></div><p class="text-xs text-gray-600 mt-0.5">${e.remarks || '—'}</p><div class="flex gap-2 mt-1 text-[10px] text-gray-400"><span>${fmtDate(e.date)}</span><span class="${cc} font-bold">${tl}</span></div></div><p class="font-black text-base ${cc}">₹${e.amount.toFixed(0)}</p></div></div>`; }); if (fe.length === 0) html = `<div class="empty-state"><p>No entries</p></div>`; document.getElementById('vehicleExpensesList').innerHTML = html; document.querySelectorAll('#vehicleWorkspaceView .filter-btn').forEach(b => b.classList.remove('active')); const fb = document.getElementById(`vehFilter${currentVehicleFilter}`); if (fb) fb.classList.add('active'); }
+        function openAddVehicleExpenseModal(vn = '') { openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Add Vehicle</h2><div class="space-y-3"><div class="flex gap-2"><input id="vehName" class="flex-1 p-2 rounded-xl border input-premium" placeholder="Vehicle name" value="${vn}"><button onclick="document.getElementById('vehName').value = prompt('New name:') || ''" class="btn-premium blue text-xs py-1 px-2">+</button></div><div class="flex gap-2"><button id="vehTypeExpense" onclick="setVehicleType('expense')" class="flex-1 py-2 rounded-lg bg-red-600 text-white font-black text-sm">💸 Expense</button><button id="vehTypeCollection" onclick="setVehicleType('collection')" class="flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm">💰 Collection</button></div><input type="hidden" id="vehType" value="expense"><input id="vehAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><select id="vehCategory" class="w-full p-2 rounded-xl border input-premium"><option value="Fuel">⛽ Fuel</option><option value="Repair">🔧 Repair</option><option value="Insurance">📄 Insurance</option><option value="Service">🛠️ Service</option><option value="EMI">🏦 EMI</option><option value="Rent">🏠 Rent</option><option value="Income">💰 Income</option><option value="Other">📌 Other</option></select><input id="vehDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${getToday()}"><textarea id="vehRemarks" class="w-full p-2 rounded-xl border input-premium" rows="2" placeholder="Notes"></textarea><button class="w-full p-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-black rounded-xl" onclick="saveVehicleExpense()">💾 SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); setVehicleType('expense'); }
+        function setVehicleType(t) { document.getElementById('vehType').value = t; const eb = document.getElementById('vehTypeExpense'), cb = document.getElementById('vehTypeCollection'); if (t === 'expense') { eb.className = 'flex-1 py-2 rounded-lg bg-red-600 text-white font-black text-sm'; cb.className = 'flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm text-gray-600'; } else { eb.className = 'flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm text-gray-600'; cb.className = 'flex-1 py-2 rounded-lg bg-green-600 text-white font-black text-sm'; } }
+        function saveVehicleExpense() { const n = document.getElementById('vehName').value.trim(); if (!n) return alert("Name required"); const t = document.getElementById('vehType').value; const a = parseFloat(document.getElementById('vehAmount').value); if (isNaN(a) || a <= 0) return alert("Valid amount"); const c = document.getElementById('vehCategory').value; const d = document.getElementById('vehDate').value; const r = document.getElementById('vehRemarks').value.trim(); db.vehicleExpenses.push({ id: rand(), vehicleName: n, type: t, expenseType: c, amount: a, date: d, remarks: r }); saveDB(); closeModal(); renderVehicleExpenses(); if (document.getElementById('vehicleDetailWorkspaceView').classList.contains('flex')) renderVehicleDetails(); }
+        function openEditVehicleExpenseModal(id) { const e = db.vehicleExpenses.find(x => x.id === id); if (!e) return; openModal(`<h2 class="font-black text-center text-lg mb-3">✏️ Edit</h2><div class="space-y-3"><input id="vehName" class="w-full p-2 rounded-xl border input-premium" value="${e.vehicleName}"><div class="flex gap-2"><button id="editVehTypeExpense" onclick="setEditVehicleType('expense')" class="flex-1 py-2 rounded-lg ${e.type === 'expense' ? 'bg-red-600 text-white' : 'bg-gray-200'} font-black text-sm">Expense</button><button id="editVehTypeCollection" onclick="setEditVehicleType('collection')" class="flex-1 py-2 rounded-lg ${e.type === 'collection' ? 'bg-green-600 text-white' : 'bg-gray-200'} font-black text-sm">Collection</button></div><input type="hidden" id="editVehType" value="${e.type}"><input id="vehAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" value="${e.amount}"><select id="vehCategory" class="w-full p-2 rounded-xl border input-premium"><option value="Fuel" ${e.expenseType === 'Fuel' ? 'selected' : ''}>Fuel</option><option value="Repair" ${e.expenseType === 'Repair' ? 'selected' : ''}>Repair</option><option value="Insurance" ${e.expenseType === 'Insurance' ? 'selected' : ''}>Insurance</option><option value="Service" ${e.expenseType === 'Service' ? 'selected' : ''}>Service</option><option value="EMI" ${e.expenseType === 'EMI' ? 'selected' : ''}>EMI</option><option value="Rent" ${e.expenseType === 'Rent' ? 'selected' : ''}>Rent</option><option value="Income" ${e.expenseType === 'Income' ? 'selected' : ''}>Income</option><option value="Other" ${e.expenseType === 'Other' ? 'selected' : ''}>Other</option></select><input id="vehDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${e.date}"><textarea id="vehRemarks" class="w-full p-2 rounded-xl border input-premium" rows="2">${e.remarks || ''}</textarea><button class="w-full p-3 bg-blue-600 text-white font-black rounded-xl" onclick="updateVehicleExpense(${id})">UPDATE</button><button class="w-full p-2 bg-red-600 text-white font-black rounded-xl" onclick="deleteVehicleExpense(${id})">DELETE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function setEditVehicleType(t) { document.getElementById('editVehType').value = t; const eb = document.getElementById('editVehTypeExpense'), cb = document.getElementById('editVehTypeCollection'); if (t === 'expense') { eb.className = 'flex-1 py-2 rounded-lg bg-red-600 text-white font-black text-sm'; cb.className = 'flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm text-gray-600'; } else { eb.className = 'flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm text-gray-600'; cb.className = 'flex-1 py-2 rounded-lg bg-green-600 text-white font-black text-sm'; } }
+        function updateVehicleExpense(id) { const e = db.vehicleExpenses.find(x => x.id === id); if (e) { e.vehicleName = document.getElementById('vehName').value.trim(); e.type = document.getElementById('editVehType').value; e.amount = parseFloat(document.getElementById('vehAmount').value); e.expenseType = document.getElementById('vehCategory').value; e.date = document.getElementById('vehDate').value; e.remarks = document.getElementById('vehRemarks').value.trim(); saveDB(); closeModal(); renderVehicleExpenses(); if (document.getElementById('vehicleDetailWorkspaceView').classList.contains('flex')) renderVehicleDetails(); } }
+        function deleteVehicleExpense(id) { if (confirm("Delete?")) { db.vehicleExpenses = db.vehicleExpenses.filter(e => e.id !== id); saveDB(); renderVehicleExpenses(); if (document.getElementById('vehicleDetailWorkspaceView').classList.contains('flex')) renderVehicleDetails(); } }
+
+        function renderLoans() { if (!db.loans) db.loans = []; updateLoanStatuses(); const s = document.getElementById('loanSearch')?.value.toLowerCase() || ''; let f = db.loans; if (currentLoanFilter === 'ACTIVE') f = db.loans.filter(l => l.status === 'ACTIVE'); else if (currentLoanFilter === 'OVERDUE') f = db.loans.filter(l => l.status === 'OVERDUE'); else if (currentLoanFilter === 'PAID') f = db.loans.filter(l => l.status === 'PAID'); if (s) f = f.filter(l => { const c = db.customers.find(x => x.id === l.cid); const n = c ? c.name.toLowerCase() : ''; return n.includes(s) || l.amount.toString().includes(s); }); document.getElementById('totalLoans').textContent = db.loans.length; document.getElementById('activeLoans').textContent = db.loans.filter(l => l.status === 'ACTIVE').length; document.getElementById('overdueLoans').textContent = db.loans.filter(l => l.status === 'OVERDUE').length; document.getElementById('totalDue').textContent = '₹' + db.loans.filter(l => l.status !== 'PAID').reduce((x, l) => x + (l.balance || l.amount), 0).toFixed(0); if (f.length === 0) { document.getElementById('loanListContainer').innerHTML = ''; document.getElementById('emptyState').classList.remove('hidden'); return; } document.getElementById('emptyState').classList.add('hidden'); let html = ''; f.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).forEach(l => { const c = db.customers.find(x => x.id === l.cid); const n = c ? c.name : 'Unknown'; const b = l.balance || l.amount; const dd = new Date(l.dueDate); const today = new Date(); const od = dd < today && l.status !== 'PAID'; const dl = Math.ceil((dd - today) / 86400000); let badge = `<span class="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-bold">ACTIVE</span>`; if (l.status === 'PAID') badge = `<span class="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-bold">PAID</span>`; else if (od || l.status === 'OVERDUE') badge = `<span class="text-[10px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-bold">OVERDUE</span>`; html += `<div class="loan-item" onclick="openLoanPaymentView(${l.id})"><div class="flex justify-between items-start gap-2 mb-2"><div class="flex-1"><div class="flex items-center gap-2"><span class="font-black text-gray-800 text-sm">${n}</span>${badge}</div><p class="text-xs text-gray-500">${l.purpose || 'Loan'}</p><div class="flex gap-2 text-[10px] text-gray-400 mt-1"><span>Due: ${fmtDate(l.dueDate)}</span></div></div><div class="text-right"><p class="font-black text-indigo-600 text-base">₹${b.toFixed(0)}</p></div></div><div class="grid grid-cols-3 gap-1"><button onclick="event.stopPropagation();openLoanPaymentView(${l.id})" class="btn-premium indigo text-[10px] py-1 px-1">Details</button><button onclick="event.stopPropagation();openLoanPaymentModal(${l.id})" class="btn-premium green text-[10px] py-1 px-1">Pay</button><button onclick="event.stopPropagation();openAdditionalPaymentModal(${l.id})" class="btn-premium red text-[10px] py-1 px-1">Extra</button></div></div>`; }); document.getElementById('loanListContainer').innerHTML = html; ['ALL', 'ACTIVE', 'OVERDUE', 'PAID'].forEach(x => { const btn = document.getElementById(`filter${x}`); if (btn) btn.className = x === currentLoanFilter ? 'filter-btn active' : 'filter-btn'; }); }
+        function updateLoanStatuses() { if (!db.loans) return; const t = new Date(); t.setHours(0, 0, 0, 0); db.loans.forEach(l => { if (l.status === 'PAID') return; const d = new Date(l.dueDate); d.setHours(0, 0, 0, 0); const b = l.balance || l.amount; if (b <= 0) { l.status = 'PAID'; l.balance = 0; } else if (d < t) l.status = 'OVERDUE'; else l.status = 'ACTIVE'; }); }
+        function setLoanFilter(f) { currentLoanFilter = f; renderLoans(); }
+        function openAddLoanModal() { let opts = '<option value="">-- Select --</option>'; db.customers.forEach(c => opts += `<option value="${c.id}">${c.name}</option>`); openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Add Loan</h2><div class="space-y-3 max-h-[70vh] overflow-y-auto"><select id="loanCustomer" class="w-full p-2 rounded-xl border input-premium">${opts}</select><input id="loanAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><input id="loanInterest" type="number" class="w-full p-2 rounded-xl border input-premium" placeholder="Interest %" value="0"><input id="loanTenure" type="number" class="w-full p-2 rounded-xl border input-premium" placeholder="Tenure (months)" value="12"><input id="loanPurpose" class="w-full p-2 rounded-xl border input-premium" placeholder="Purpose"><input id="loanDueDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${getToday()}"><textarea id="loanNotes" class="w-full p-2 rounded-xl border input-premium" rows="2" placeholder="Notes"></textarea><button class="w-full p-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-black rounded-xl" onclick="saveLoan()">💾 CREATE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function saveLoan() { const cid = parseInt(document.getElementById('loanCustomer').value); if (!cid) return alert("Select customer"); const a = parseFloat(document.getElementById('loanAmount').value); if (isNaN(a) || a <= 0) return alert("Valid amount"); const r = parseFloat(document.getElementById('loanInterest').value) || 0; const t = parseInt(document.getElementById('loanTenure').value) || 12; const e = a / t; const p = document.getElementById('loanPurpose').value.trim() || 'Loan'; const d = document.getElementById('loanDueDate').value; const n = document.getElementById('loanNotes').value.trim(); if (!d) return alert("Select date"); db.loans.push({ id: rand(), cid, amount: a, balance: a, purpose: p, interestRate: r, tenure: t, emi: e, dueDate: d, notes: n, status: 'ACTIVE', createdAt: new Date().toISOString(), totalInterestCharged: 0, totalPrincipalPaid: 0 }); saveDB(); closeModal(); renderLoans(); }
+        function openLoanPaymentView(id) { currentViewLoanId = id; switchView('loanPayment'); renderPaymentView(); }
+        function renderPaymentView() { const id = currentViewLoanId; if (!id) { document.getElementById('payCustName').innerHTML = '— <small>No loan</small>'; return; } const l = db.loans.find(x => x.id === id); if (!l) { document.getElementById('payCustName').innerHTML = '— <small>Not found</small>'; return; } const c = db.customers.find(x => x.id === l.cid); const n = c ? c.name : 'Unknown'; document.getElementById('payCustName').innerHTML = `${n} <small>${l.purpose || 'Loan'}</small>`; document.getElementById('payBalance').innerText = '₹' + (l.balance || l.amount).toFixed(2); document.getElementById('payPrincipal').innerText = '₹' + l.amount.toFixed(2); const payments = db.loanPayments ? db.loanPayments.filter(p => p.loanId === id).sort((a, b) => new Date(a.date) - new Date(b.date)) : []; let ti = 0, tp = 0, ta = 0; payments.forEach(p => { ta += p.amount; ti += p.interestApplied || 0; tp += p.principalPaid || 0; }); document.getElementById('payInterestPaid').innerText = '₹' + ti.toFixed(2); document.getElementById('payTotalPaid').innerText = '₹' + ta.toFixed(2); let st = 'ACTIVE', sc = 'status-active'; if (l.status === 'PAID') { st = 'PAID'; sc = 'status-paid'; } else if (l.status === 'OVERDUE') { st = 'OVERDUE'; sc = 'status-overdue'; } document.getElementById('payStatusBadge').className = sc; document.getElementById('payStatusBadge').innerText = st; let rows = ''; let rb = l.amount, hp = false; payments.forEach(p => { hp = true; const ie = p.isExtra || false; const a = p.amount || 0, pr = p.principalPaid || 0, it = p.interestApplied || 0; if (ie) rb += a; else rb -= pr; rows += `<tr><td>${fmtDate(p.date)}${ie ? ' 🔴' : ''}</td><td class="text-right">₹${a.toFixed(0)}</td><td class="text-right">₹${pr.toFixed(0)}</td><td class="text-right">₹${it.toFixed(0)}</td><td class="text-right">₹${Math.max(0, rb).toFixed(0)}</td></tr>`; }); if (hp) { document.getElementById('payTableFoot').classList.remove('hidden'); document.getElementById('payTotalAmountCell').innerText = '₹' + ta.toFixed(0); document.getElementById('payTotalPrincipalCell').innerText = '₹' + tp.toFixed(0); document.getElementById('payTotalInterestCell').innerText = '₹' + ti.toFixed(0); document.getElementById('payFinalBalanceCell').innerText = '₹' + Math.max(0, rb).toFixed(0); } else { document.getElementById('payTableFoot').classList.add('hidden'); rows = '<tr><td colspan="5" class="text-center py-4 text-gray-400">No payments</td></tr>'; } document.getElementById('payTableBody').innerHTML = rows; }
+        function payViewAction(action) { const id = currentViewLoanId; if (!id) return alert("No loan"); const l = db.loans.find(x => x.id === id); if (!l) return; if (action === 'pay') openLoanPaymentModal(id); else if (action === 'extra') openAdditionalPaymentModal(id); else if (action === 'print') printLoanDetails(id); else if (action === 'pdf') printLoanDetails(id); else if (action === 'delete') deleteLoan(id); else if (action === 'view') alert('Customer: ' + (db.customers.find(c => c.id === l.cid)?.name || 'Unknown') + '\nAmount: ₹' + l.amount + '\nBalance: ₹' + (l.balance || l.amount) + '\nStatus: ' + l.status); }
+        function openLoanPaymentModal(id) { const l = db.loans.find(x => x.id === id); if (!l) return; const b = l.balance || l.amount; let i = 0; if (l.interestRate > 0) { i = (b * (l.interestRate / 100)) / 12; i = Math.round(i * 100) / 100; } openModal(`<h2 class="font-black text-center text-lg mb-3">💰 Payment</h2><div class="space-y-3"><div class="flex justify-between text-sm"><span>Principal</span><span class="font-black text-indigo-600">₹${b.toFixed(2)}</span></div><div class="flex justify-between text-sm text-amber-600"><span>Interest</span><span class="font-black">+₹${i.toFixed(2)}</span></div><div class="flex justify-between text-sm border-t pt-2"><span>Total</span><span class="font-black text-red-600">₹${(b + i).toFixed(2)}</span></div><input id="paymentAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><input id="paymentDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${getToday()}"><input id="paymentNotes" class="w-full p-2 rounded-xl border input-premium" placeholder="Notes"><button class="w-full p-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black rounded-xl" onclick="saveLoanPayment(${id})">✅ SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function saveLoanPayment(id) { const l = db.loans.find(x => x.id === id); if (!l) return; const a = parseFloat(document.getElementById('paymentAmount').value); if (isNaN(a) || a <= 0) return alert("Valid amount"); const d = document.getElementById('paymentDate').value; const n = document.getElementById('paymentNotes').value.trim(); if (!d) return alert("Select date"); let p = l.balance || l.amount; let i = 0; if (l.interestRate > 0) { i = (p * (l.interestRate / 100)) / 12; i = Math.round(i * 100) / 100; } if (a > p + i) return alert('Exceeds total payable'); let ip = 0, pp = 0; if (a <= i) ip = a; else { ip = i; pp = a - i; } db.loanPayments.push({ id: rand(), loanId: id, cid: l.cid, amount: a, date: d, notes: n, interestApplied: ip, principalPaid: pp, balanceBeforePayment: p, isExtra: false }); l.balance = p - pp; if (l.balance <= 0) { l.balance = 0; l.status = 'PAID'; } saveDB(); closeModal(); if (currentViewLoanId === id) renderPaymentView(); else renderLoans(); }
+        function openAdditionalPaymentModal(id) { const l = db.loans.find(x => x.id === id); if (!l) return; const b = l.balance || l.amount; openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Extra Charge</h2><div class="space-y-3"><p class="text-xs text-red-500 font-bold">⚠️ Adds to balance</p><div class="flex justify-between text-sm"><span>Current</span><span class="font-black text-indigo-600">₹${b.toFixed(2)}</span></div><input id="extraPaymentAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><input id="extraPaymentDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${getToday()}"><input id="extraPaymentNotes" class="w-full p-2 rounded-xl border input-premium" placeholder="Reason"><button class="w-full p-3 bg-gradient-to-r from-red-500 to-rose-600 text-white font-black rounded-xl" onclick="saveAdditionalPayment(${id})">✅ ADD</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function saveAdditionalPayment(id) { const l = db.loans.find(x => x.id === id); if (!l) return; const a = parseFloat(document.getElementById('extraPaymentAmount').value); if (isNaN(a) || a <= 0) return alert("Valid amount"); const d = document.getElementById('extraPaymentDate').value; const n = document.getElementById('extraPaymentNotes').value.trim(); if (!d) return alert("Select date"); const b = l.balance || l.amount; db.loanPayments.push({ id: rand(), loanId: id, cid: l.cid, amount: a, date: d, notes: n || 'Extra', interestApplied: 0, principalPaid: 0, balanceBeforePayment: b, isExtra: true }); l.balance = b + a; if (l.status === 'PAID' && l.balance > 0) l.status = 'ACTIVE'; saveDB(); closeModal(); if (currentViewLoanId === id) renderPaymentView(); else renderLoans(); }
+        function deleteLoan(id) { if (!confirm("Delete loan?")) return; db.loans = db.loans.filter(l => l.id !== id); db.loanPayments = db.loanPayments.filter(p => p.loanId !== id); saveDB(); if (currentViewLoanId === id) { currentViewLoanId = null; goBackFromPaymentView(); } else renderLoans(); }
+        function printLoanDetails(id) { const l = db.loans.find(x => x.id === id); if (!l) return; const c = db.customers.find(x => x.id === l.cid); const n = c ? c.name : 'Unknown'; const payments = db.loanPayments ? db.loanPayments.filter(p => p.loanId === id).sort((a, b) => new Date(a.date) - new Date(b.date)) : []; let rows = payments.map(p => `<tr><td style="padding:6px;border:1px solid #ccc;font-size:11px;">${fmtDate(p.date)}</td><td style="padding:6px;border:1px solid #ccc;font-size:11px;text-align:right;">₹${(p.amount || 0).toFixed(2)}</td><td style="padding:6px;border:1px solid #ccc;font-size:11px;text-align:right;">₹${(p.principalPaid || 0).toFixed(2)}</td><td style="padding:6px;border:1px solid #ccc;font-size:11px;text-align:right;">₹${(p.interestApplied || 0).toFixed(2)}</td></tr>`).join(''); const w = window.open('', '_blank', 'width=800,height=600'); w.document.write(`<!DOCTYPE html><html><head><title>Loan</title></head><body style="font-family:Inter;padding:20px;"><h2>Loan Payment History</h2><p><strong>${n}</strong> - ${l.purpose || 'Loan'}</p><p>Balance: ₹${(l.balance || l.amount).toFixed(2)} | ${l.status}</p><table style="width:100%;border-collapse:collapse;"><thead><tr><th style="padding:6px;border:1px solid #ccc;background:#f0f0f0;font-size:11px;">Date</th><th style="padding:6px;border:1px solid #ccc;background:#f0f0f0;font-size:11px;">Amount</th><th style="padding:6px;border:1px solid #ccc;background:#f0f0f0;font-size:11px;">Principal</th><th style="padding:6px;border:1px solid #ccc;background:#f0f0f0;font-size:11px;">Interest</th></tr></thead><tbody>${rows || '<tr><td colspan="4" style="text-align:center;padding:20px;">No payments</td></tr>'}</tbody></table></body></html>`); w.document.close(); setTimeout(() => w.print(), 500); }
+
+        function renderCashBook() { if (!db.cashBook) db.cashBook = []; const s = document.getElementById('cashSearch')?.value.toLowerCase() || ''; const sd = document.getElementById('cashFilterStart')?.value || ''; const ed = document.getElementById('cashFilterEnd')?.value || ''; let f = [...db.cashBook]; if (currentCashFilter === 'GAVE') f = f.filter(t => t.type === 'GAVE'); else if (currentCashFilter === 'RECEIVED') f = f.filter(t => t.type === 'RECEIVED'); if (sd) f = f.filter(t => t.date >= sd); if (ed) f = f.filter(t => t.date <= ed); if (s) f = f.filter(t => t.note.toLowerCase().includes(s) || t.category.toLowerCase().includes(s) || t.amount.toString().includes(s)); f.sort((a, b) => new Date(b.date) - new Date(a.date)); let tg = 0, tr = 0; db.cashBook.forEach(t => { if (t.type === 'GAVE') tg += t.amount; else tr += t.amount; }); document.getElementById('cashTotalGave').innerText = '₹' + tg.toFixed(0); document.getElementById('cashTotalReceived').innerText = '₹' + tr.toFixed(0); document.getElementById('cashNetBalance').innerText = '₹' + (tr - tg).toFixed(0); let rows = ''; let td = 0; f.forEach(t => { const ig = t.type === 'GAVE'; const bc = ig ? 'cash-type-gave' : 'cash-type-received'; const bt = ig ? 'GAVE' : 'REC'; td += t.amount; rows += `<tr class="${ig ? 'gave-row' : 'received-row'}" onclick="openEditCashModal(${t.id})"><td>${fmtDate(t.date)}</td><td><span class="cash-type-badge ${bc}">${bt}</span></td><td>₹${t.amount.toFixed(0)}</td><td>${t.note}</td></tr>`; }); if (f.length === 0) { rows = '<tr><td colspan="4" class="text-center py-4 text-gray-400">No transactions</td></tr>'; document.getElementById('cashTableFoot').classList.add('hidden'); } else { document.getElementById('cashTableFoot').classList.remove('hidden'); document.getElementById('cashFootTotal').innerText = '₹' + td.toFixed(0); } document.getElementById('cashTableBody').innerHTML = rows; ['ALL', 'GAVE', 'RECEIVED'].forEach(x => { const b = document.getElementById(`cashFilter${x}`); if (b) b.className = x === currentCashFilter ? 'filter-btn active' : 'filter-btn'; }); }
+        function setCashFilter(f) { currentCashFilter = f; renderCashBook(); }
+        function clearCashFilters() { document.getElementById('cashSearch').value = ''; document.getElementById('cashFilterStart').value = ''; document.getElementById('cashFilterEnd').value = ''; currentCashFilter = 'ALL'; renderCashBook(); }
+        function clearCashDateRange() { document.getElementById('cashFilterStart').value = ''; document.getElementById('cashFilterEnd').value = ''; renderCashBook(); }
+        function openAddCashModal() { openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Add Transaction</h2><div class="space-y-3"><div class="flex gap-2"><button onclick="setCashType('GAVE')" id="cashTypeGave" class="flex-1 py-2 rounded-lg bg-red-600 text-white font-black text-sm">📤 GAVE</button><button onclick="setCashType('RECEIVED')" id="cashTypeReceived" class="flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm">📥 RECEIVED</button></div><input type="hidden" id="cashType" value="GAVE"><input id="cashAmount" type="number" class="w-full p-3 text-2xl text-center font-black rounded-xl border input-premium" placeholder="₹ 0"><input id="cashDate" type="date" class="w-full p-2 rounded-xl border input-premium" value="${getToday()}"><input id="cashNote" class="w-full p-2 rounded-xl border input-premium" placeholder="Note"><select id="cashCategory" class="w-full p-2 rounded-xl border input-premium"><option value="">— None —</option><option>Food</option><option>Travel</option><option>Shopping</option><option>Bills</option><option>Medical</option><option>Salary</option><option>Rent</option><option>Other</option></select><button class="w-full p-2 bg-gradient-to-r from-teal-500 to-cyan-600 text-white font-black rounded-xl" onclick="saveCashEntry()">💾 SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); setCashType('GAVE'); }
+        function setCashType(t) { document.getElementById('cashType').value = t; const gb = document.getElementById('cashTypeGave'), rb = document.getElementById('cashTypeReceived'); if (t === 'GAVE') { gb.className = 'flex-1 py-2 rounded-lg bg-red-600 text-white font-black text-sm'; rb.className = 'flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm'; } else { gb.className = 'flex-1 py-2 rounded-lg bg-gray-200 font-bold text-sm'; rb.className = 'flex-1 py-2 rounded-lg bg-green-600 text-white font-black text-sm'; } }
+        function saveCashEntry() { const t = document.getElementById('cashType').value; const a = parseFloat(document.getElementById('cashAmount').value); if (isNaN(a) || a <= 0) return alert("Valid amount"); const d = document.getElementById('cashDate').value; if (!d) return alert("Select date"); const n = document.getElementById('cashNote').value.trim(); const c = document.getElementById('cashCategory').value; if (!db.cashBook) db.cashBook = []; db.cashBook.push({ id: rand(), type: t, amount: a, date: d, note: n || '—', category: c || '—' }); saveDB(); closeModal(); renderCashBook(); }
+        function openEditCashModal(id) { const t = db.cashBook.find(x => x.id === id); if (!t) return; if (!confirm("Delete this transaction?")) return; db.cashBook = db.cashBook.filter(x => x.id !== id); saveDB(); renderCashBook(); }
+
+        function renderContacts() { if (!db.contacts) db.contacts = []; const s = document.getElementById('contactSearch')?.value.toLowerCase() || ''; let f = db.contacts.filter(c => c.name.toLowerCase().includes(s) || c.number.includes(s)); f.sort((a, b) => a.name.localeCompare(b.name)); if (f.length === 0) { document.getElementById('contactsListContainer').innerHTML = ''; document.getElementById('emptyContactsState').classList.remove('hidden'); return; } document.getElementById('emptyContactsState').classList.add('hidden'); let html = ''; f.forEach(c => { html += `<div class="premium-card mb-2" onclick="openEditContactModal(${c.id})"><div class="flex justify-between items-start"><div><h3 class="font-black text-sm text-gray-800">${c.name}</h3><p class="text-xs text-gray-600 mt-0.5"><i class="fa-solid fa-phone text-pink-500"></i> ${c.number}</p></div><div class="flex gap-1"><button onclick="event.stopPropagation();window.open('tel:${c.number}')" class="bg-green-600 text-white p-2 rounded-lg text-xs"><i class="fa-solid fa-phone"></i></button><button onclick="event.stopPropagation();window.open('https://wa.me/${c.number}')" class="bg-green-500 text-white p-2 rounded-lg text-xs"><i class="fab fa-whatsapp"></i></button></div></div></div>`; }); document.getElementById('contactsListContainer').innerHTML = html; }
+        function openAddContactModal() { openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Add Contact</h2><div class="space-y-3"><input id="contactName" class="w-full p-2 rounded-xl border input-premium" placeholder="Name *"><input id="contactNumber" type="tel" class="w-full p-2 rounded-xl border input-premium" placeholder="Phone *"><input id="contactJob" class="w-full p-2 rounded-xl border input-premium" placeholder="Job"><input id="contactOther" class="w-full p-2 rounded-xl border input-premium" placeholder="Other"><button class="w-full p-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-black rounded-xl" onclick="saveContact()">💾 SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function saveContact() { const n = document.getElementById('contactName').value.trim(); const num = document.getElementById('contactNumber').value.trim(); if (!n) return alert("Name required"); if (!num) return alert("Phone required"); const j = document.getElementById('contactJob').value.trim(); const o = document.getElementById('contactOther').value.trim(); db.contacts.push({ id: rand(), name: n, number: num, job: j, other: o }); saveDB(); closeModal(); renderContacts(); }
+        function openEditContactModal(id) { const c = db.contacts.find(x => x.id === id); if (!c) return; openModal(`<h2 class="font-black text-center text-lg mb-3">✏️ Edit</h2><div class="space-y-3"><input id="editContactName" class="w-full p-2 rounded-xl border input-premium" value="${c.name}"><input id="editContactNumber" class="w-full p-2 rounded-xl border input-premium" value="${c.number}"><button class="w-full p-3 bg-blue-600 text-white font-black rounded-xl" onclick="updateContact(${id})">UPDATE</button><button class="w-full p-2 bg-red-600 text-white font-black rounded-xl" onclick="if(confirm('Delete?')){db.contacts=db.contacts.filter(x=>x.id!==${id});saveDB();closeModal();renderContacts();}">DELETE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function updateContact(id) { const c = db.contacts.find(x => x.id === id); if (c) { c.name = document.getElementById('editContactName').value.trim(); c.number = document.getElementById('editContactNumber').value.trim(); saveDB(); closeModal(); renderContacts(); } }
+
+        function renderReminders() { if (!db.reminders) db.reminders = []; let html = ''; const today = new Date(); today.setHours(0,0,0,0); const sorted = [...db.reminders].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate)); sorted.forEach(r => { const due = new Date(r.dueDate); due.setHours(0,0,0,0); const d = Math.ceil((due - today) / 86400000); let bg = 'bg-gradient-to-r from-emerald-500 to-green-600'; let badge = ''; if (d < 0) { bg = 'bg-gradient-to-r from-rose-600 to-red-600'; badge = '🔴 Overdue'; } else if (d <= 3) { bg = 'bg-gradient-to-r from-amber-500 to-orange-600'; badge = '🟡 Due Soon'; } else { badge = '✅ On Time'; } html += `<div class="reminder-card ${bg}" onclick="openEditReminderModal(${r.id})"><div class="flex justify-between items-start"><div class="flex-1"><div class="flex items-center gap-2 mb-1"><h3 class="font-bold text-sm text-white">${r.title}</h3><span class="bg-white/20 text-white text-[9px] px-2 py-0.5 rounded-full">${badge}</span></div><p class="text-white text-xs">${r.description || ''}</p><div class="text-white/80 text-[10px] mt-1">📅 ${fmtDate(r.dueDate)} ${r.dueTime || ''}</div></div><button onclick="event.stopPropagation();if(confirm('Delete?')){db.reminders=db.reminders.filter(x=>x.id!==${r.id});saveDB();renderReminders();}" class="bg-white/20 p-2 rounded-full"><i class="fa-solid fa-trash text-white text-xs"></i></button></div></div>`; }); document.getElementById('remindersListContainer').innerHTML = html || `<div class="empty-state"><i class="fa-regular fa-sticky-note"></i><p>No reminders</p></div>`; }
+        function openAddReminderModal() { const ct = String(new Date().getHours()).padStart(2, '0') + ':' + String(new Date().getMinutes()).padStart(2, '0'); openModal(`<h2 class="font-black text-center text-lg mb-3">➕ Add Reminder</h2><div class="space-y-3"><input id="remTitle" class="w-full p-2 rounded-lg border input-premium" placeholder="Title"><textarea id="remDesc" class="w-full p-2 rounded-lg border input-premium" rows="2" placeholder="Description"></textarea><input id="remDate" type="date" class="w-full p-2 rounded-lg border input-premium" value="${getToday()}"><input id="remTime" type="time" class="w-full p-2 rounded-lg border input-premium" value="${ct}"><select id="remDays" class="w-full p-2 rounded-lg border input-premium"><option value="1">1 day before</option><option value="3" selected>3 days before</option><option value="7">7 days before</option></select><button class="w-full p-3 bg-gradient-to-r from-purple-600 to-pink-500 text-white font-black rounded-lg" onclick="saveReminder()">💾 SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function saveReminder() { const t = document.getElementById('remTitle').value.trim(); if (!t) return alert("Title required"); const d = document.getElementById('remDesc').value.trim(), dd = document.getElementById('remDate').value, dt = document.getElementById('remTime').value, rdy = parseInt(document.getElementById('remDays').value); if (!dd) return alert("Select date"); db.reminders.push({ id: rand(), title: t, description: d, dueDate: dd, dueTime: dt, reminderDays: rdy, icon: 'fa-bell', alertSent: false }); saveDB(); closeModal(); renderReminders(); }
+        function openEditReminderModal(id) { const r = db.reminders.find(x => x.id === id); if (!r) return; openModal(`<h2 class="font-black text-center text-lg mb-3">✏️ Edit</h2><div class="space-y-3"><input id="editRemTitle" class="w-full p-2 rounded-lg border input-premium" value="${r.title}"><textarea id="editRemDesc" class="w-full p-2 rounded-lg border input-premium" rows="2">${r.description || ''}</textarea><input id="editRemDate" type="date" class="w-full p-2 rounded-lg border input-premium" value="${r.dueDate}"><input id="editRemTime" type="time" class="w-full p-2 rounded-lg border input-premium" value="${r.dueTime || ''}"><button class="w-full p-3 bg-blue-600 text-white font-black rounded-xl" onclick="updateReminder(${id})">UPDATE</button><button class="w-full p-2 bg-red-600 text-white font-black rounded-xl" onclick="if(confirm('Delete?')){db.reminders=db.reminders.filter(x=>x.id!==${id});saveDB();closeModal();renderReminders();}">DELETE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+        function updateReminder(id) { const r = db.reminders.find(x => x.id === id); if (r) { r.title = document.getElementById('editRemTitle').value.trim(); r.description = document.getElementById('editRemDesc').value.trim(); r.dueDate = document.getElementById('editRemDate').value; r.dueTime = document.getElementById('editRemTime').value; saveDB(); closeModal(); renderReminders(); } }
+        function toggleAlarm() { db.alarmEnabled = !db.alarmEnabled; const i = document.getElementById('alarmIcon'), s = document.getElementById('alarmStatus'); if (db.alarmEnabled) { i.className = 'fa-solid fa-bell'; s.innerText = 'ON'; } else { i.className = 'fa-solid fa-bell-slash'; s.innerText = 'OFF'; } saveDB(); }
+
+        function openSecurityModal() { openModal(`<h2 class="font-black text-center text-lg mb-3">🛡️ Security</h2><div class="space-y-3"><div class="flex justify-between p-3 bg-gray-100 rounded-xl"><span class="font-bold">PIN Lock</span><span class="${db.pin ? 'text-green-600' : 'text-red-500'} font-bold">${db.pin ? '✅ ON' : '❌ OFF'}</span></div><input id="securityPinInput" type="password" maxlength="4" class="w-full p-3 rounded-xl border input-premium text-center text-2xl font-black" placeholder="4-digit PIN" value="${db.pin || ''}"><button class="w-full p-3 bg-amber-600 text-white font-black rounded-xl" onclick="saveSecurityPin()">💾 SAVE</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Close</button></div>`); }
+        function saveSecurityPin() { const p = document.getElementById('securityPinInput').value; if (p && p.length !== 4) return alert("4 digits"); db.pin = p; saveDB(); alert("Saved!"); closeModal(); }
+
+        function openSettings() { openModal(`<h2 class="font-black text-center text-lg mb-3">⚙️ Settings</h2><div class="space-y-3 max-h-[70vh] overflow-y-auto"><input id="upiI" class="w-full p-2 rounded-lg border input-premium" value="${db.upi || ''}" placeholder="UPI ID"><input id="pinI" type="password" maxlength="4" class="w-full p-2 rounded-lg border input-premium" value="${db.pin || ''}" placeholder="4-digit PIN"><button class="w-full p-2 bg-blue-600 text-white font-black rounded-lg" onclick="saveSettings()">💾 SAVE</button><div class="border-t pt-3"><p class="text-xs font-black text-center mb-2">📁 BACKUP</p><div class="grid grid-cols-2 gap-2"><button class="p-2 bg-emerald-700 text-white rounded-lg font-bold text-sm" onclick="exportData()">⬇️ BACKUP</button><button class="p-2 bg-purple-700 text-white rounded-lg font-bold text-sm" onclick="document.getElementById('imp').click()">⬆️ RESTORE</button></div><input type="file" id="imp" class="hidden" onchange="importData(event)"></div><button class="w-full p-2 bg-rose-700 text-white rounded-lg font-bold" onclick="fullResetApp()">⚠️ RESET</button><button class="w-full py-2 text-gray-500" onclick="closeModal()">Close</button></div>`); }
+        function saveSettings() { const u = document.getElementById('upiI').value.trim(), p = document.getElementById('pinI').value; if (p && p.length !== 4 && p.length !== 0) return alert("4 digits"); db.upi = u; if (p && p.length === 4) db.pin = p; saveDB(); alert("Saved!"); closeModal(); }
+        function exportData() { const pw = prompt("Password (blank for none):"); let d = JSON.stringify(db); if (pw && pw.trim()) { d = "ENC:" + CryptoJS.AES.encrypt(d, pw).toString(); } else d = "PLAIN:" + d; const b = new Blob([d], { type: 'application/json' }), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `khata_${getToday()}.json`; a.click(); alert("Downloaded!"); }
+        function importData(e) { const r = new FileReader(); r.onload = ev => { try { let d = ev.target.result, dec = null; if (d.startsWith("ENC:")) { const pw = prompt("Password:"); if (!pw) return; dec = CryptoJS.AES.decrypt(d.substring(4), pw).toString(CryptoJS.enc.Utf8); if (!dec) throw new Error("Wrong"); } else if (d.startsWith("PLAIN:")) dec = d.substring(6); else dec = d; const imp = JSON.parse(dec); if (!imp.customers) throw new Error("Invalid"); db = imp; saveDB(); alert("Restored!"); location.reload(); } catch (err) { alert("Error: " + err.message); } }; r.readAsText(e.target.files[0]); }
+
+        function openActionsHubModal() { const c = db.customers.find(x => x.id === activeCid); if (!c) return; let rb = 0; db.trans.filter(t => t.cid === activeCid).forEach(t => rb += (t.type === 'GAVE' ? t.amt : -t.amt)); openModal(`<h2 class="font-black text-center text-lg mb-3">⚡ Actions</h2><div class="grid grid-cols-2 gap-2"><button onclick="closeModal();window.open('https://wa.me/${c.phone}?text=Balance:%20₹${Math.abs(rb).toFixed(2)}')" class="btn-premium green text-sm py-2 px-3">WhatsApp</button><button onclick="closeModal();openQR(${Math.abs(rb).toFixed(2)})" class="btn-premium purple text-sm py-2 px-3">QR Code</button><button onclick="closeModal();openPrintModal()" class="btn-premium indigo text-sm py-2 px-3">Print</button><button onclick="closeModal();openPromiseModal()" class="btn-premium amber text-sm py-2 px-3">Promise</button></div><button class="w-full mt-3 text-gray-500 py-2" onclick="closeModal()">Close</button>`); }
+
+        function openQR(amt) { if (!db.upi) return alert("Set UPI in settings"); currentQRAmount = amt; openModal(`<div class="text-center"><div id="qr-container" class="bg-white p-3 rounded-xl inline-block"></div><p class="font-black mt-2 text-gray-800">₹${amt}</p><p class="text-sm text-gray-600">${db.upi}</p><button class="w-full mt-3 p-2 bg-gray-300 text-gray-800 rounded-lg font-bold" onclick="closeModal()">Close</button></div>`); setTimeout(() => { const qc = document.getElementById("qr-container"); if (qc) { qc.innerHTML = ""; new QRCode(qc, { text: `upi://pay?pa=${db.upi}&am=${amt}&cu=INR`, width: 150, height: 150 }); } }, 100); }
+
+        function printFullIncomeExpense() { alert('Use Print button from each section'); }
+        function printIncomeBalance() { alert('Print feature ready'); }
+        function printExpenseBalance() { alert('Print feature ready'); }
+        function printCashBook() { alert('Print feature ready'); }
+        function printVehicleExpenses() { alert('Print feature ready'); }
+        function printReminders() { alert('Print feature ready'); }
+        function openPrintModal() { const c = db.customers.find(x => x.id === activeCid); if (!c) return; openModal(`<h2 class="font-black text-center mb-3">🖨️ Print Ledger</h2><div class="space-y-3"><input id="ps" type="date" class="w-full p-2 rounded-lg border input-premium" value="2025-01-01"><input id="pe" type="date" class="w-full p-2 rounded-lg border input-premium" value="${getToday()}"><button class="w-full p-3 bg-indigo-600 text-white font-black rounded-lg" onclick="alert('Print Ready')">📄 PRINT</button><button class="w-full text-gray-500 py-2" onclick="closeModal()">Cancel</button></div>`); }
+
+        // RTO Functions
+        const RTO_DB_NAME = 'AsmaRTODatabase';
+        const RTO_STORE_NAME = 'customers';
+        let rtoDatabase = [];
+        let rtoDB = null;
+        function rtoOpenDB() { return new Promise((resolve, reject) => { const request = indexedDB.open(RTO_DB_NAME, 1); request.onerror = () => reject(request.error); request.onsuccess = () => { rtoDB = request.result; resolve(rtoDB); }; request.onupgradeneeded = (event) => { const d = event.target.result; if (!d.objectStoreNames.contains(RTO_STORE_NAME)) { const store = d.createObjectStore(RTO_STORE_NAME, { keyPath: 'id' }); } }; }); }
+        async function rtoLoadAllData() { return new Promise((resolve, reject) => { if (!rtoDB) { resolve([]); return; } const tx = rtoDB.transaction([RTO_STORE_NAME], 'readonly'); const req = tx.objectStore(RTO_STORE_NAME).getAll(); req.onsuccess = () => { rtoDatabase = req.result || []; resolve(rtoDatabase); }; req.onerror = () => reject(req.error); }); }
+        async function rtoSaveToDB(rec) { return new Promise((resolve, reject) => { const tx = rtoDB.transaction([RTO_STORE_NAME], 'readwrite'); const req = tx.objectStore(RTO_STORE_NAME).put(rec); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); }); }
+        async function rtoDeleteFromDB(id) { return new Promise((resolve, reject) => { const tx = rtoDB.transaction([RTO_STORE_NAME], 'readwrite'); const req = tx.objectStore(RTO_STORE_NAME).delete(id); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); }); }
+        async function rtoClearAllFromDB() { return new Promise((resolve, reject) => { const tx = rtoDB.transaction([RTO_STORE_NAME], 'readwrite'); const req = tx.objectStore(RTO_STORE_NAME).clear(); req.onsuccess = () => resolve(); req.onerror = () => reject(req.error); }); }
+        async function rtoUpdateStorageInfo() { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); document.getElementById('rtoStorageInfo').innerHTML = `💾 ${(e.usage / 1048576).toFixed(1)}MB / ${(e.quota / 1048576).toFixed(0)}MB`; } else { document.getElementById('rtoStorageInfo').innerHTML = `💾 Unlimited`; } }
+        function rtoCheckLogin() { if (document.getElementById('rtoPassInput').value === "admin123") { document.getElementById('rtoLoginSection').style.display = 'none'; document.getElementById('rtoAppSection').style.display = 'block'; rtoInit(); } else { alert("Invalid! Use: admin123"); } }
+        function rtoToBase64(file) { return new Promise((resolve) => { if (!file) return resolve(null); const r = new FileReader(); r.readAsDataURL(file); r.onload = () => resolve(r.result); r.onerror = () => resolve(null); }); }
+        async function rtoSaveData() { const n = document.getElementById('rtoCustName').value.trim(); const v = document.getElementById('rtoVehNo').value.trim(); if (!n || !v) return alert("Name and Vehicle required"); const eid = document.getElementById('rtoEditId').value; const ex = eid ? rtoDatabase.find(c => c.id == eid) : null; const gf = async (id, k) => { const inp = document.getElementById(id); if (inp.files.length > 0) return await rtoToBase64(inp.files[0]); return ex ? ex[k] : null; }; const d = { id: eid ? parseInt(eid) : Date.now(), name: n, phone: document.getElementById('rtoCustPhone').value, veh: v.toUpperCase(), insDate: document.getElementById('rtoInsDate').value, taxDate: document.getElementById('rtoTaxDate').value, perDate: document.getElementById('rtoPerDate').value, fitDate: document.getElementById('rtoFitDate').value, pucDate: document.getElementById('rtoPucDate').value, renDate: document.getElementById('rtoRenDate').value, rcDoc: await gf('rtoRcFile', 'rcDoc'), aadharDoc: await gf('rtoAadharFile', 'aadharDoc'), welfareDoc: await gf('rtoWelfareFile', 'welfareDoc'), panDoc: await gf('rtoPanFile', 'panDoc') }; await rtoSaveToDB(d); if (eid) { rtoDatabase = rtoDatabase.map(c => c.id == eid ? d : c); alert("Updated!"); } else { rtoDatabase.push(d); alert("Saved!"); } rtoResetForm(); await rtoLoadAllData(); rtoRenderTable(); await rtoUpdateStorageInfo(); }
+        function rtoResetForm() { ['rtoEditId','rtoCustName','rtoCustPhone','rtoVehNo','rtoInsDate','rtoTaxDate','rtoPerDate','rtoFitDate','rtoPucDate','rtoRenDate'].forEach(id => document.getElementById(id).value = ''); ['rtoRcFile','rtoAadharFile','rtoWelfareFile','rtoPanFile'].forEach(id => document.getElementById(id).value = ''); document.getElementById('rtoFormTitle').innerHTML = '➕ Add New Customer'; document.getElementById('rtoSaveBtn').innerHTML = '💾 Save'; document.getElementById('rtoCancelBtn').style.display = 'none'; }
+        function rtoEditCustomer(c) { document.getElementById('rtoEditId').value = c.id; document.getElementById('rtoCustName').value = c.name; document.getElementById('rtoCustPhone').value = c.phone || ''; document.getElementById('rtoVehNo').value = c.veh; document.getElementById('rtoInsDate').value = c.insDate || ''; document.getElementById('rtoTaxDate').value = c.taxDate || ''; document.getElementById('rtoPerDate').value = c.perDate || ''; document.getElementById('rtoFitDate').value = c.fitDate || ''; document.getElementById('rtoPucDate').value = c.pucDate || ''; document.getElementById('rtoRenDate').value = c.renDate || ''; document.getElementById('rtoFormTitle').innerHTML = '✏️ Editing: ' + c.name; document.getElementById('rtoSaveBtn').innerHTML = '✏️ Update'; document.getElementById('rtoCancelBtn').style.display = 'inline-block'; }
+        async function rtoDeleteCustomer(id) { if (confirm("Delete?")) { await rtoDeleteFromDB(id); rtoDatabase = rtoDatabase.filter(c => c.id !== id); rtoRenderTable(); await rtoUpdateStorageInfo(); alert("Deleted!"); } }
+        function rtoGetDays(ds) { if (!ds) return null; const t = new Date(); t.setHours(0,0,0,0); const e = new Date(ds); e.setHours(0,0,0,0); return (e - t) / 86400000; }
+        function rtoGetStatus(ds) { if (!ds) return { class: 'normal', label: '—', isExpired: false, isUpcoming: false }; const d = rtoGetDays(ds); const f = ds.split('-').reverse().join('/'); if (d < 0) return { class: 'expired', label: `🚫 ${f}`, isExpired: true, isUpcoming: false }; if (d <= 2) return { class: 'upcoming', label: `⚠️ ${f}`, isExpired: false, isUpcoming: true }; return { class: 'normal', label: `✅ ${f}`, isExpired: false, isUpcoming: false }; }
+        let rtoFilter = 'all', rtoSearch = '';
+        function rtoHandleSearch() { rtoSearch = document.getElementById('rtoSearchBar').value.toLowerCase(); rtoRenderTable(); }
+        function rtoFilterTable(t) { rtoFilter = t; rtoRenderTable(); }
+        function rtoRenderTable() { let f = [...rtoDatabase]; if (rtoSearch) f = f.filter(c => c.name.toLowerCase().includes(rtoSearch) || c.veh.toLowerCase().includes(rtoSearch)); if (rtoFilter === 'expired') f = f.filter(c => [c.insDate, c.taxDate, c.perDate, c.fitDate, c.pucDate, c.renDate].some(d => d && rtoGetDays(d) < 0)); else if (rtoFilter === 'expiring_soon') f = f.filter(c => [c.insDate, c.taxDate, c.perDate, c.fitDate, c.pucDate, c.renDate].some(d => { const days = rtoGetDays(d); return days !== null && days > 0 && days <= 2; })); const tbody = document.getElementById('rtoDataTable'); const al = document.getElementById('rtoAlertList'); tbody.innerHTML = ''; al.innerHTML = ''; let ha = false; for (const c of f) { const ins = rtoGetStatus(c.insDate), tax = rtoGetStatus(c.taxDate), per = rtoGetStatus(c.perDate), fit = rtoGetStatus(c.fitDate), puc = rtoGetStatus(c.pucDate), ren = rtoGetStatus(c.renDate); if (ins.isExpired || tax.isExpired || per.isExpired || fit.isExpired || puc.isExpired || ren.isExpired) ha = true; tbody.innerHTML += `<tr><td><strong>${c.name}</strong><br><small style="color:#8fa0dd;">${c.phone || '—'}</small><br><small style="color:#00f0ff;">${c.veh}</small></td><td><span class="${ins.class}">${ins.label}</span></td><td><span class="${tax.class}">${tax.label}</span></td><td><span class="${per.class}">${per.label}</span></td><td><span class="${fit.class}">${fit.label}</span></td><td><span class="${puc.class}">${puc.label}</span></td><td><span class="${ren.class}">${ren.label}</span></td><td><button class="btn-secondary" style="padding:4px 8px;font-size:11px;" onclick='rtoEditCustomer(${JSON.stringify(c)})'>Edit</button> <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="rtoDeleteCustomer(${c.id})">Del</button></td></tr>`; } document.getElementById('rtoAlertPanel').style.display = ha ? 'block' : 'none'; }
+        async function rtoExportToJSON() { const d = await rtoLoadAllData(); if (d.length === 0) return alert("No data"); const b = new Blob([JSON.stringify(d, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = `Asma_RTO_${Date.now()}.json`; a.click(); alert("Exported!"); }
+        async function rtoImportFromJSON(e) { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = async (ev) => { try { const d = JSON.parse(ev.target.result); if (!Array.isArray(d)) throw new Error("Invalid"); for (const rec of d) await rtoSaveToDB(rec); await rtoLoadAllData(); rtoRenderTable(); alert(`Imported ${d.length}!`); } catch (err) { alert("Error: " + err.message); } document.getElementById('rtoRestoreInput').value = ''; }; r.readAsText(f); }
+        async function rtoClearAllData() { if (confirm("Delete ALL RTO data?")) { await rtoClearAllFromDB(); rtoDatabase = []; rtoRenderTable(); rtoResetForm(); await rtoUpdateStorageInfo(); alert("Cleared!"); } }
+        async function rtoInit() { await rtoOpenDB(); await rtoLoadAllData(); await rtoUpdateStorageInfo(); rtoRenderTable(); }
+
+        window.onload = () => {
+            console.log('✅ KHATA PRO loaded');
+            if (db.theme) { const t = themeColors[db.theme]; if (t) { document.body.classList.add(t.body); document.body.style.background = t.bg; const h = document.getElementById('mainHeader'); if (h) h.style.background = t.header; } }
+            if (db.darkMode) document.body.classList.add('dark-mode');
+            if (db.alarmEnabled) { document.getElementById('alarmIcon').className = 'fa-solid fa-bell'; document.getElementById('alarmStatus').innerText = 'ON'; } else { document.getElementById('alarmIcon').className = 'fa-solid fa-bell-slash'; document.getElementById('alarmStatus').innerText = 'OFF'; }
+            lockApp();
+        };
+    </script>
+</body>
+</html>
